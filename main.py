@@ -20,7 +20,7 @@ from moviepy.config import change_settings
 # 1. Find the full path to the 'magick.exe' file on your system.
 #    (e.g., r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe")
 # 2. Paste the path below, replacing the empty string.
-IMAGEMAGICK_BINARY_PATH = ""
+IMAGEMAGICK_BINARY_PATH = r"C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe"
 if IMAGEMAGICK_BINARY_PATH:
     print(f"Using custom ImageMagick path: {IMAGEMAGICK_BINARY_PATH}")
     change_settings({"IMAGEMAGICK_BINARY": IMAGEMAGICK_BINARY_PATH})
@@ -179,7 +179,7 @@ async def generate_video_endpoint(topic: str = Form(...), video: UploadFile = Fi
         subtitle_data = generate_subtitles(audio_path)
 
         # 4. Assemble Video
-        assemble_.video(upload_path, audio_path, subtitle_data, output_path)
+        assemble_video(upload_path, audio_path, subtitle_data, output_path)
 
         # Return the final video file
         return FileResponse(output_path, media_type="video/mp4", filename="generated_video.mp4")
