@@ -71,53 +71,61 @@ def generate_subtitles(audio_path: str) -> list:
 def assemble_video(video_path: str, audio_path: str, subtitles: list, output_path: str):
     """Assembles the final video with subtitles and audio."""
     print(f"Assembling video to: {output_path}")
+    video_clip = None
+    audio_clip = None
+    final_clip = None
+    try:
+        # Load video and audio
+        video_clip = mp.VideoFileClip(video_path)
+        audio_clip = mp.AudioFileClip(audio_path)
 
-    # Load video and audio
-    video_clip = mp.VideoFileClip(video_path)
-    audio_clip = mp.AudioFileClip(audio_path)
+        # Set video duration to audio duration
+        video_clip = video_clip.set_duration(audio_clip.duration)
 
-    # Set video duration to audio duration
-    video_clip = video_clip.set_duration(audio_clip.duration)
+        # Resize and crop to 9:16 aspect ratio
+        w, h = video_clip.size
+        target_ratio = 9.0 / 16.0
+        current_ratio = w / h
 
-    # Resize and crop to 9:16 aspect ratio
-    w, h = video_clip.size
-    target_ratio = 9.0 / 16.0
-    current_ratio = w / h
+        if current_ratio > target_ratio:
+            new_w = int(h * target_ratio)
+            video_clip = vfx.crop(video_clip, width=new_w, x_center=w/2)
+        else:
+            new_h = int(w / target_ratio)
+            video_clip = vfx.crop(video_clip, height=new_h, y_center=h/2)
 
-    if current_ratio > target_ratio:
-        # Wider than target, crop horizontally
-        new_w = int(h * target_ratio)
-        video_clip = vfx.crop(video_clip, width=new_w, x_center=w/2)
-    else:
-        # Taller than target, crop vertically
-        new_h = int(w / target_ratio)
-        video_clip = vfx.crop(video_clip, height=new_h, y_center=h/2)
+        video_clip = video_clip.resize(width=1080)
 
-    video_clip = video_clip.resize(width=1080)
+        # Create subtitle clips
+        subtitle_clips = []
+        for word_info in subtitles:
+            text_clip = mp.TextClip(
+                word_info['word'].strip(),
+                fontsize=70,
+                color='white',
+                font='Liberation-Sans',
+                stroke_color='black',
+                stroke_width=3
+            )
+            text_clip = text_clip.set_start(word_info['start']).set_end(word_info['end'])
+            subtitle_clips.append(text_clip)
 
+        # Compose final video
+        final_clip = mp.CompositeVideoClip([
+            video_clip,
+            *subtitle_clips
+        ]).set_position('center', 'center')
 
-    # Create subtitle clips
-    subtitle_clips = []
-    for word_info in subtitles:
-        text_clip = mp.TextClip(
-            word_info['word'].strip(),
-            fontsize=70,
-            color='white',
-            font='Liberation-Sans',
-            stroke_color='black',
-            stroke_width=3
-        )
-        text_clip = text_clip.set_start(word_info['start']).set_end(word_info['end'])
-        subtitle_clips.append(text_clip)
-
-    # Compose final video
-    final_clip = mp.CompositeVideoClip([
-        video_clip,
-        *subtitle_clips
-    ]).set_position('center', 'center')
-
-    final_clip = final_clip.set_audio(audio_clip)
-    final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+        final_clip = final_clip.set_audio(audio_clip)
+        final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+    finally:
+        # Ensure all clips are closed to release file handles
+        if video_clip:
+            video_clip.close()
+        if audio_clip:
+            audio_clip.close()
+        if final_clip:
+            final_clip.close()
 
 
 # --- FastAPI Application ---

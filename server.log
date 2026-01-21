@@ -1,7 +1,21 @@
-INFO:     Started server process [10928]
+INFO:     Started server process [18742]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:36922 - "GET / HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36926 - "GET /static/script.js HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36922 - "GET /static/style.css HTTP/1.1" 200 OK
+Generating script for: The history of the internet
+Generated Script: 0s-3s: "You just Googled the answer, but have you ever wondered how we got here?"
+
+We're living in a world where information is just a click away, but did you know, humans first thought about this 'hypertext' idea back in the 1940s? Verner Vinge, a computer scientist, wrote a short story called "The Moon and the Sun" depicting a futuristic digital world.
+
+As the 1960s rolled in, a team at MIT, led by Douglas Engelbart, worked on the "NLS" - a system that let users interact with text and images on a computer. This was the birthplace of many of the technologies we use today, such as the mouse and links.
+
+The first network, called ARPANET, launched in 1969 and connected four different universities across the United States. This was the first time multiple computers were connected, paving the way for the modern-day internet.
+
+By the 1990s, universities and the general public started accessing the internet using dial-up connections and web browsers like Mosaic.
+
+Follow for more tech histories!
+Generating voiceover at: temp_67fbb299-3c07-4ee1-b166-a0f84c4feef8/voice.mp3
+Generating subtitles for: temp_67fbb299-3c07-4ee1-b166-a0f84c4feef8/voice.mp3
+Generated 170 subtitle words.
+Assembling video to: outputs/67fbb299-3c07-4ee1-b166-a0f84c4feef8.mp4
+INFO:     127.0.0.1:56826 - "POST /generate HTTP/1.1" 500 Internal Server Error
