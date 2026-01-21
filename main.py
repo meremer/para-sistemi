@@ -12,6 +12,19 @@ import asyncio
 from faster_whisper import WhisperModel
 import moviepy.editor as mp
 import moviepy.video.fx.all as vfx
+from moviepy.config import change_settings
+
+# --- IMPORTANT CONFIGURATION FOR WINDOWS USERS ---
+# If you are on Windows and the program fails with a "[WinError 2]" message,
+# it means MoviePy cannot find the ImageMagick program.
+# 1. Find the full path to the 'magick.exe' file on your system.
+#    (e.g., r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe")
+# 2. Paste the path below, replacing the empty string.
+IMAGEMAGICK_BINARY_PATH = ""
+if IMAGEMAGICK_BINARY_PATH:
+    print(f"Using custom ImageMagick path: {IMAGEMAGICK_BINARY_PATH}")
+    change_settings({"IMAGEMAGICK_BINARY": IMAGEMAGICK_BINARY_PATH})
+# ---------------------------------------------------
 
 load_dotenv()
 
@@ -166,7 +179,7 @@ async def generate_video_endpoint(topic: str = Form(...), video: UploadFile = Fi
         subtitle_data = generate_subtitles(audio_path)
 
         # 4. Assemble Video
-        assemble_video(upload_path, audio_path, subtitle_data, output_path)
+        assemble_.video(upload_path, audio_path, subtitle_data, output_path)
 
         # Return the final video file
         return FileResponse(output_path, media_type="video/mp4", filename="generated_video.mp4")
