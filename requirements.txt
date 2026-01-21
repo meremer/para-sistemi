@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+moviepy
+edge-tts
+faster-whisper
+groq
+python-multipart
