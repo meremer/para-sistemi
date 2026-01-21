@@ -37,7 +37,7 @@ def generate_script(topic: str) -> str:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"The topic is: {topic}"}
         ],
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
     )
 
     script = chat_completion.choices[0].message.content
@@ -175,4 +175,4 @@ if __name__ == "__main__":
     # Ensure necessary directories exist
     os.makedirs("outputs", exist_ok=True)
     # Run the server
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn..run(app, host="0.0.0.0", port=8000)
