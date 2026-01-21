@@ -1,4 +1,7 @@
-Traceback (most recent call last):
-  File "/app/main.py", line 13, in <module>
-    import moviepy.editor as mp
-ModuleNotFoundError: No module named 'moviepy.editor'
+INFO:     Started server process [10928]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:36922 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36926 - "GET /static/script.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36922 - "GET /static/style.css HTTP/1.1" 200 OK
