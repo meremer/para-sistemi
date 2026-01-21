@@ -107,7 +107,7 @@ def assemble_video(video_path: str, audio_path: str, subtitles: list, output_pat
             new_h = int(w / target_ratio)
             video_clip = vfx.crop(video_clip, height=new_h, y_center=h/2)
 
-        video_clip = video_clip.resize(width=1080)
+        video_clip = video_clip.resize(width=1440)
 
         # Create subtitle clips
         subtitle_clips = []
@@ -119,7 +119,7 @@ def assemble_video(video_path: str, audio_path: str, subtitles: list, output_pat
                 font='Liberation-Sans',
                 stroke_color='black',
                 stroke_width=3
-            )
+            ).set_position(('center', 'center'))
             text_clip = text_clip.set_start(word_info['start']).set_end(word_info['end'])
             subtitle_clips.append(text_clip)
 
@@ -127,10 +127,17 @@ def assemble_video(video_path: str, audio_path: str, subtitles: list, output_pat
         final_clip = mp.CompositeVideoClip([
             video_clip,
             *subtitle_clips
-        ]).set_position('center', 'center')
+        ])
 
         final_clip = final_clip.set_audio(audio_clip)
-        final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac", fps=24)
+        final_clip.write_videofile(
+            output_path,
+            codec="libx264",
+            audio_codec="aac",
+            fps=24,
+            bitrate="12M",
+            preset="slow"
+        )
     finally:
         # Ensure all clips are closed to release file handles
         if video_clip:

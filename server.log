@@ -1,21 +1,24 @@
-INFO:     Started server process [18742]
+INFO:     Started server process [20700]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): [errno 98] address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+Using custom ImageMagick path: C:\Program Files\ImageMagick-7.1.2-Q16-HDRI\magick.exe
 Generating script for: The history of the internet
-Generated Script: 0s-3s: "You just Googled the answer, but have you ever wondered how we got here?"
+Generated Script: I'm staring at a 5-cent coin, the very first ever website – info.cern.ch – launched in 1991.
 
-We're living in a world where information is just a click away, but did you know, humans first thought about this 'hypertext' idea back in the 1940s? Verner Vinge, a computer scientist, wrote a short story called "The Moon and the Sun" depicting a futuristic digital world.
+In the early 1960s, the US Department of Defense created ARPANET, the first network to connect computers. This laid the groundwork for the global internet we know today. Initially intended for secure communication, it paved the way for the World Wide Web.
 
-As the 1960s rolled in, a team at MIT, led by Douglas Engelbart, worked on the "NLS" - a system that let users interact with text and images on a computer. This was the birthplace of many of the technologies we use today, such as the mouse and links.
+A British engineer named Tim Berners-Lee then revolutionized the internet in 1989. He created HTML, the standard language for websites, and the Hypertext Transfer Protocol (HTTP) to connect servers and browsers.
 
-The first network, called ARPANET, launched in 1969 and connected four different universities across the United States. This was the first time multiple computers were connected, paving the way for the modern-day internet.
+The popularization of the internet picked up pace with the introduction of the World Wide Web in 1993. As dial-up connections became widespread, the number of internet users grew exponentially.
 
-By the 1990s, universities and the general public started accessing the internet using dial-up connections and web browsers like Mosaic.
+Fast-forward to the early 2000s, and we were greeted by the dawn of broadband internet, social media, and cloud storage. Since then, the internet has evolved into a multi-billion-dollar industry driving global innovation.
 
-Follow for more tech histories!
-Generating voiceover at: temp_67fbb299-3c07-4ee1-b166-a0f84c4feef8/voice.mp3
-Generating subtitles for: temp_67fbb299-3c07-4ee1-b166-a0f84c4feef8/voice.mp3
+The question is: What's next for the web? Stay curious, learn with us.
+Generating voiceover at: temp_7d2b393a-e51e-4828-81d9-593d70a556fb/voice.mp3
+Generating subtitles for: temp_7d2b393a-e51e-4828-81d9-593d70a556fb/voice.mp3
 Generated 170 subtitle words.
-Assembling video to: outputs/67fbb299-3c07-4ee1-b166-a0f84c4feef8.mp4
-INFO:     127.0.0.1:56826 - "POST /generate HTTP/1.1" 500 Internal Server Error
+Assembling video to: outputs/7d2b393a-e51e-4828-81d9-593d70a556fb.mp4
+INFO:     127.0.0.1:54130 - "POST /generate HTTP/1.1" 500 Internal Server Error
