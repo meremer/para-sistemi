@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+moviepy==1.0.3
+edge-tts
+faster-whisper
+groq
+python-multipart
+python-dotenv
+Pillow<10.0.0

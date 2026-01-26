@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoShorts Engine</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AutoShorts Engine</h1>
+        <form id="video-form">
+            <label for="topic">Video Topic:</label>
+            <input type="text" id="topic" name="topic" required>
+
+            <label for="video">Background Video:</label>
+            <input type="file" id="video" name="video" accept="video/*" required>
+
+            <button type="submit" id="generate-btn">Generate Video</button>
+        </form>
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

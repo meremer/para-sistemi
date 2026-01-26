@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# FastAPI
+.venv/
+
+# Moviepy
+*.mp4
+*.mp3
+
+# Outputs
+outputs/
+temp_*/
+.DS_Store
