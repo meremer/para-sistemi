@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Library Management Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e40af", // Deep Blue
+                        "secondary-red": "#dc2626", // Red for errors/mandatory
+                        "background-light": "#f8fafc",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-slate-900 overflow-hidden">
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm"></div>
+<div class="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl border-2 border-primary overflow-hidden">
+<div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+<h3 class="text-xl font-bold tracking-tight">Add New Book</h3>
+<button class="text-white/80 hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8">
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Book Title <span class="text-secondary-red">*</span>
+</label>
+<input class="w-full bg-white border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="e.g. The Midnight Library" required="" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Author <span class="text-secondary-red">*</span>
+</label>
+<input class="w-full bg-white border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="e.g. Matt Haig" required="" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    ISBN <span class="text-secondary-red">*</span>
+</label>
+<input class="w-full bg-white border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="978-0..." required="" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">Total Copies</label>
+<input class="w-full bg-white border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="0" type="number"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">Category</label>
+<select class="w-full bg-white border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+<option>Select Category</option>
+<option>Fiction</option>
+<option>Non-Fiction</option>
+<option>Science</option>
+<option>History</option>
+<option>Biography</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col">
+<label class="block text-sm font-semibold text-slate-700 mb-1.5">Book Cover Image</label>
+<div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl hover:border-primary hover:bg-blue-50/50 transition-all cursor-pointer group">
+<div class="text-center p-6">
+<span class="material-symbols-outlined text-4xl text-slate-400 group-hover:text-primary transition-colors mb-2">add_photo_alternate</span>
+<p class="text-sm font-semibold text-slate-600">Click to upload</p>
+<p class="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-secondary-red italic flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">info</span>
+                    Fields marked with * are mandatory.
+                </p>
+</form>
+</div>
+<div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+<button class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">
+                Cancel
+            </button>
+<button class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg shadow-blue-900/20 transition-all">
+                Add Book
+            </button>
+</div>
+</div>
+</div>
+<div class="flex min-h-screen blur-[2px] pointer-events-none">
+<aside class="w-64 flex-shrink-0 border-r border-slate-200 bg-white flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight">LibAdmin</h1>
+<p class="text-xs text-slate-500">Management Suite</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">book</span>
+<span>Books</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Members</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span>Lending</span>
+</a>
+</nav>
+<div class="p-4 mt-auto border-t border-slate-200">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-slate-100">
+<div class="size-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAcF0LpHsDkFmLunrG86RlCLgWQgE-aHul5___QjZQwx8DCOEcOJSiL99EtIM_Up_tYb2wnk6qwdeJaXu67vnmDsD-6tM-fxKuKXLjuk2MKT3ebBjzBihhxjoUG5u80gM7LPZFZbHudnkjvTfO2nu7RDa1A4X61LLH8R810oXzFXfuo75fxvI1pOJFRxi-r0uQCFS9QT92Xs_nVZUGkNFVijQ8CHgiSDloPBPbCaYBQtKeW_wFZHCsEca2IOMYi2PzLZPJuHs3TzfnM");'></div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-medium truncate">Alex Admin</p>
+<p class="text-xs text-slate-500 truncate">System Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-16 flex items-center justify-between px-8 border-b border-slate-200 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+<h2 class="text-xl font-bold tracking-tight">Dashboard</h2>
+<div class="flex items-center gap-4">
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-xl">add</span>
+                    Add New Book
+                </button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Total Books</p>
+<span class="material-symbols-outlined text-primary">library_books</span>
+</div>
+<p class="text-3xl font-bold">12,450</p>
+</div>
+<div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Books Lended</p>
+<span class="material-symbols-outlined text-primary">import_contacts</span>
+</div>
+<p class="text-3xl font-bold">842</p>
+</div>
+<div class="bg-white border border-secondary-red/20 p-6 rounded-xl shadow-sm ring-1 ring-secondary-red/10">
+<div class="flex justify-between items-start mb-2">
+<p class="text-slate-500 text-sm font-medium uppercase tracking-wider">Overdue</p>
+<span class="material-symbols-outlined text-secondary-red">warning</span>
+</div>
+<p class="text-3xl font-bold text-secondary-red">38</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

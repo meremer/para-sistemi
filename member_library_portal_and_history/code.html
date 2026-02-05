@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Member Library Portal - Athenaeum</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-blue": "#0047AB",
+                        "brand-red": "#D92D20",
+                        "accent-blue": "#EBF3FF",
+                        "surface": "#FFFFFF",
+                        "border-light": "#E5E7EB",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-white text-slate-900 font-display;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .nav-link-active {
+            @apply border-b-2 border-white text-white;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<header class="sticky top-0 z-50 bg-primary-blue text-white shadow-md">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-3xl">auto_stories</span>
+<h2 class="text-xl font-bold tracking-tight uppercase">Athenaeum</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8 h-16">
+<a class="text-sm font-semibold h-full flex items-center px-1 border-b-2 border-white" href="#">Dashboard</a>
+<a class="text-sm font-medium h-full flex items-center px-1 border-b-2 border-transparent hover:border-white/50 transition-colors" href="#">Catalog</a>
+<a class="text-sm font-medium h-full flex items-center px-1 border-b-2 border-transparent hover:border-white/50 transition-colors" href="#">My Collection</a>
+<a class="text-sm font-medium h-full flex items-center px-1 border-b-2 border-transparent hover:border-white/50 transition-colors" href="#">Reserved</a>
+</nav>
+</div>
+<div class="flex-1 max-w-md mx-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary-blue">search</span>
+<input class="w-full bg-white border-none rounded-lg pl-10 pr-4 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-brand-red transition-all" placeholder="Search library catalog..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/10 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-brand-red rounded-full border-2 border-primary-blue"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-white/20">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold leading-none">John Doe</p>
+<p class="text-[10px] text-white/70">Administrator</p>
+</div>
+<div class="h-9 w-9 rounded-full bg-white text-primary-blue flex items-center justify-center font-bold text-sm">JD</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8">
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-4xl font-black text-slate-900 tracking-tight">Member Dashboard</h1>
+<p class="text-slate-600 mt-1">Manage your borrowings and explore the academic collection.</p>
+</div>
+<div class="bg-brand-red/5 border-l-4 border-brand-red px-4 py-3 rounded flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-red">warning</span>
+<div>
+<p class="text-sm font-bold text-brand-red">Due Today</p>
+<p class="text-xs text-slate-700">2 books are due for return by 5:00 PM</p>
+</div>
+</div>
+</div>
+<section class="mb-12">
+<div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+<h2 class="text-xl font-bold flex items-center gap-2 text-slate-800">
+<span class="material-symbols-outlined text-primary-blue">menu_book</span> Currently Reading
+            </h2>
+<a class="text-primary-blue text-sm font-bold hover:underline" href="#">View Collection</a>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-white border border-slate-200 rounded-xl p-6 flex gap-6 hover:border-primary-blue/30 transition-all shadow-sm">
+<div class="w-36 h-48 rounded bg-cover bg-center shadow-md flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD7mP-MOwXoY1uy-qm3GQnzLKJ6IjF_DR6NW8N7i7UkiBgEoW6Lw5CEnuSYAowRnj_N4qsaxIBlqrjOaVexhnrXmkuzfHcd7SS-7Yxi4d2OCDcVRnYQO5JV-p0D4Z0_nsQivbMoGlg_SiSP0Yhg_grwtySHOphDbgomGRI_0NuSDsAq799tqmXR6q1e1AmybdiLLnnxcQ5xvjww3fzsTAFXJYBaWBNEXYKFWnPH2j6In6B38YCFhVLZKfvSMhjcUiuh_JNMbExYd08M')"></div>
+<div class="flex flex-col justify-between flex-1">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold uppercase tracking-widest text-brand-red mb-1 block">Due in 4 hours</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary-blue">more_horiz</span>
+</div>
+<h3 class="text-xl font-bold leading-tight text-slate-900">The Design of Everyday Things</h3>
+<p class="text-slate-500 text-sm font-medium">Don Norman</p>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-semibold text-slate-500 uppercase">Reading Progress</span>
+<span class="text-sm font-bold text-primary-blue">52%</span>
+</div>
+<div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-blue h-full rounded-full" style="width: 52%"></div>
+</div>
+<div class="flex gap-2 mt-6">
+<button class="flex-1 bg-primary-blue text-white px-4 py-2.5 rounded font-bold text-xs hover:bg-blue-800 transition-colors uppercase tracking-wider">Continue</button>
+<button class="flex-1 border-2 border-slate-200 text-slate-700 px-4 py-2.5 rounded font-bold text-xs hover:bg-slate-50 transition-colors uppercase tracking-wider">Renew</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white border border-slate-200 rounded-xl p-6 flex gap-6 hover:border-primary-blue/30 transition-all shadow-sm">
+<div class="w-36 h-48 rounded bg-cover bg-center shadow-md flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA2wnbayfUyhQv7evejEgKzQm7A_FU2SleaPG714aB8S10HfMiZQV4dups8ylAiz_Nzvonm17f4OCL2QWVZe0RuEXxiMiTLLB2SMs76tU0lnUp6TcZDotP3F7QLhlx_Jce7x0inHVZMUl-cHnvcLhDwofiFZFeSI-pSZfqC6m0FqVqggV-jC0snh0dXYbEsMcmIGhX2sDPUbJrJcMF4ZSuYyCutlTNjaxxQPJH3_DeRkQxE9CETiJMzjtk1DDS1nNhywHi2p2QLVzDJ')"></div>
+<div class="flex flex-col justify-between flex-1">
+<div>
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1 block">Borrowed Oct 25</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary-blue">more_horiz</span>
+</div>
+<h3 class="text-xl font-bold leading-tight text-slate-900">Atomic Habits</h3>
+<p class="text-slate-500 text-sm font-medium">James Clear</p>
+</div>
+<div class="mt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-semibold text-slate-500 uppercase">Reading Progress</span>
+<span class="text-sm font-bold text-primary-blue">28%</span>
+</div>
+<div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary-blue h-full rounded-full" style="width: 28%"></div>
+</div>
+<div class="flex gap-2 mt-6">
+<button class="flex-1 bg-primary-blue text-white px-4 py-2.5 rounded font-bold text-xs hover:bg-blue-800 transition-colors uppercase tracking-wider">Continue</button>
+<button class="flex-1 border-2 border-slate-200 text-slate-700 px-4 py-2.5 rounded font-bold text-xs hover:bg-slate-50 transition-colors uppercase tracking-wider">Renew</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="mb-12">
+<div class="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+<h2 class="text-xl font-bold flex items-center gap-2 text-slate-800">
+<span class="material-symbols-outlined text-primary-blue">explore</span> Discover Catalog
+            </h2>
+<div class="flex items-center gap-6">
+<select class="bg-transparent border-none text-sm font-bold text-slate-600 focus:ring-0 cursor-pointer">
+<option>Most Popular</option>
+<option>Recent Acquisitions</option>
+<option>Highly Rated</option>
+</select>
+<a class="text-primary-blue text-sm font-bold hover:underline" href="#">View Full Catalog</a>
+</div>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu6UYvB9EUs6mo5vP7anfx9dMRfMy9TPX_EQx_if3UYOvU7Slo6d_Tf8NKj-cSJcRo3gq9-P1sXQekY6TIZ8mw1_W4O4ntlsxtdCp6cCDfJ9es4wqUqnPURL67cG6-sPkhzidaigaeLb2DxSpsoBmK5rbTqPuKE74TfoTawuYKtgBb8vEUfIhvwNLnZst8JMYXctkwvg7LbIY5vjVUtXMDuxhDLDTDWh2aYesINRwSFX0TqbIxlzVNtb7M2LVOHnPyDIqHMDOms-Mk')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] text-emerald-700 px-2 py-1 rounded font-black border border-emerald-100 shadow-sm">AVAILABLE</div>
+<div class="absolute inset-0 bg-primary-blue/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4">
+<button class="w-full bg-white text-primary-blue px-4 py-2 rounded font-bold text-xs shadow-lg mb-2">BORROW NOW</button>
+<button class="w-full border-2 border-white text-white px-4 py-2 rounded font-bold text-xs">DETAILS</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">A Brief History of Time</h3>
+<p class="text-xs text-slate-500 mt-1">Stephen Hawking</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCiQw0QGUafE4Sh821_9Lx3HZg9VRsBM8Jhj-sbhKgl6Hjll8vakcWWclWHbj4i7QXjbAeCRHcFlmyBw0fcNZPS0XSQDdxjLczxLfHQHifonKjmHYU7XdJ80z9wpKpM0-Z0LzLcYyfDVUDe9dRKokvVGKmtp49ZdDEMYYhCkLUFsSDnlI6IOv4X14HTtH6_yX0iOMWluvDES9FgsprdVJnTHx0Cqosk1rKnSbWLIRRu1kE8C-WqR2OQXwZrYXtkiKKQYeUcTGf2JVWw')"></div>
+<div class="absolute top-3 left-3 bg-brand-red text-[10px] text-white px-2 py-1 rounded font-black shadow-lg">WAITLIST (2)</div>
+<div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4">
+<button class="w-full bg-brand-red text-white px-4 py-2 rounded font-bold text-xs shadow-lg">JOIN QUEUE</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">Sapiens</h3>
+<p class="text-xs text-slate-500 mt-1">Yuval Noah Harari</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA8PvCr4jeaubKtwymAs9tlUkGLsnlqP2EG_5tlCpavonr7bVP9V9CjGn7S2nKlLsSadfd9UyvxcIUnTg1jwlPxgppEF7fc4xJpKhaKXMoz8l4nWQ6ny0uy8LYM4nnQNeJu8tojIfC8wCwUwKoXGia4TmL58k-YaAWMl77ePZOst-frpbiX_nbYDT5-7QFtHd3_BR7fL_Oy_achrjlC-ivz-hdj2nFmj0EBwZMQV9ab0AZtR2lhBJQ53VcjLe66X3xx1MRW7ngj-WDu')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] text-emerald-700 px-2 py-1 rounded font-black border border-emerald-100 shadow-sm">AVAILABLE</div>
+<div class="absolute inset-0 bg-primary-blue/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+<button class="w-full bg-white text-primary-blue px-4 py-2 rounded font-bold text-xs">BORROW NOW</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">Dune</h3>
+<p class="text-xs text-slate-500 mt-1">Frank Herbert</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDt_1XxqLZ384i7Q9VohZ_i72CUSi6uJb0SRX_mMqXvpnzjPieV3iaL9Ju-JxXzsGjL1ZNLyo8G38p_TROXCAbV9kTRLhQF1-Wajc1pY7tN3d8yjqNkpGOuYJ8rAEtnlCcgwsoS5FMbe7narVOCcpMBCidgZdncBl3U7Nj6iyNWGKJAQr5ppC_5kkIvSk8MeulEMSpub4heRFX0UCXHoCcRKwhi8xMO1WyQpwJvc8l8NXlzTstqCm0wysZAB3ZSK8Kv1X0wwxs4YBGs')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] text-emerald-700 px-2 py-1 rounded font-black border border-emerald-100 shadow-sm">AVAILABLE</div>
+<div class="absolute inset-0 bg-primary-blue/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+<button class="w-full bg-white text-primary-blue px-4 py-2 rounded font-bold text-xs">BORROW NOW</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">Thinking, Fast and Slow</h3>
+<p class="text-xs text-slate-500 mt-1">Daniel Kahneman</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDngHOR8eWZFHj48DA8wFbhDAE8c5Prqy7U6qwemYk1lWL0LUQbDXGHbC79xhrTc1TtkNeJcHQTBkaTg3IYMpY0Mjwq6texB532Y24IshJfEiEMiqoq6RF5pdEsDAEd4-1bFV9ZDyvgZ2RSpmywtg3XG8rZ7_77wjgSYa_Q6HS_ofvrr-cRCNYPlAGnt99bT3g7gnCQbdJmnds5ubJnWGhMctm-dJ21w0d8WvLi3c-cRJVDZRfySS34iBvs4B_ltv99j9j83MzIimPe')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] text-emerald-700 px-2 py-1 rounded font-black border border-emerald-100 shadow-sm">AVAILABLE</div>
+<div class="absolute inset-0 bg-primary-blue/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+<button class="w-full bg-white text-primary-blue px-4 py-2 rounded font-bold text-xs">BORROW NOW</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">The Great Gatsby</h3>
+<p class="text-xs text-slate-500 mt-1">F. Scott Fitzgerald</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-100 mb-4">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC4B7bi03B_vd-ZTpv2_jCoxfD-B_ciRG_aE4oOh7RQRayj-R4I-AoLWS5TSDuWNP__2i8JQYFw8eWsFrXC6u14ukxHrOg9vFPMWUz__EjhDV44xYztyz6S7gdLslRBNpHFhC1PoLO68QflHMR4_Mbl8ra82hK9-N746KUG8UCd-4as4jVR2TwZJ5SP1p_pyJqn3m_XH6YEZibZUw-HJmsHdYMu1ZYpfKl09X6NvhKlx9rhijXincMf62PkT2bXi2X6rn7lZ2YD840-')"></div>
+<div class="absolute top-3 left-3 bg-white/90 backdrop-blur text-[10px] text-emerald-700 px-2 py-1 rounded font-black border border-emerald-100 shadow-sm">AVAILABLE</div>
+<div class="absolute inset-0 bg-primary-blue/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+<button class="w-full bg-white text-primary-blue px-4 py-2 rounded font-bold text-xs">BORROW NOW</button>
+</div>
+</div>
+<h3 class="font-bold text-sm leading-tight text-slate-900 group-hover:text-primary-blue transition-colors">Clean Code</h3>
+<p class="text-xs text-slate-500 mt-1">Robert C. Martin</p>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+<h2 class="text-xl font-bold flex items-center gap-2 text-slate-800">
+<span class="material-symbols-outlined text-primary-blue">history</span> Activity History
+            </h2>
+<button class="text-slate-600 text-sm font-bold hover:text-primary-blue flex items-center gap-1 transition-colors">
+                GENERATE REPORT <span class="material-symbols-outlined text-sm">download</span>
+</button>
+</div>
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+<th class="px-6 py-4">Title &amp; Author</th>
+<th class="px-6 py-4">Borrow Date</th>
+<th class="px-6 py-4">Return Date</th>
+<th class="px-6 py-4">Your Rating</th>
+<th class="px-6 py-4 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-14 rounded bg-slate-100 bg-cover bg-center border border-slate-200" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrcInMJdo7yrGr1aWuCPO-7RW8sy1J9b23xgGoyL0r7u5vp8K6B_ghFc_wOljW-BxFVA6w4gip5nlBhSfGi4phQa-JwaRqDKSAusAud1y9xtZ8Kix5xGcYkG_kSo7FoVNPolAOPyZf_nm4URTdPt2CQ83Z1rbHTrvWECwpkec5riVDWehv8neYvxGNBQQLUZu1WNB2lBki6W6Xyl6Fkq7gdjUORw-9BbzZAqrH_ApUpCWRRaH4P1D13J1-QV2LEp0zz0phm57skYgo')"></div>
+<div>
+<p class="font-bold text-slate-900">The Alchemist</p>
+<p class="text-xs text-slate-500 font-medium">Paulo Coelho</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Sep 04, 2023</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Sep 18, 2023</td>
+<td class="px-6 py-4">
+<div class="flex text-amber-400">
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded text-[10px] font-black border border-emerald-200">RETURNED</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-14 rounded bg-slate-100 bg-cover bg-center border border-slate-200" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAdxdqzdoDiJt1sdLD41C3mV9k5LmvPBTtj809gVZiogeV7MMzJdAbimARtjUU3f6ojz47om9F5xJH9sY7ZDAo2pL3CaxgyYYPX2VC4Ap71lqmmOt1uE7vNO60CR_c6G6HURfBSzrBO7NAfTiws2P1geYLgxWGOxWVVP6AUyPkrPofc0r10WvVKyHyiNjEJIGAQ8q81aZStrkLGwCLFhaeCrJWVreR3xb44KA5BBs2LxKLeoY9qQg-urAwRoLOmzhbqKSEU9E4rL2EA')"></div>
+<div>
+<p class="font-bold text-slate-900">Deep Work</p>
+<p class="text-xs text-slate-500 font-medium">Cal Newport</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Aug 12, 2023</td>
+<td class="px-6 py-4 text-slate-600 font-medium">Aug 30, 2023</td>
+<td class="px-6 py-4">
+<div class="flex text-amber-400">
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+<span class="material-symbols-outlined text-lg fill-current">star</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded text-[10px] font-black border border-emerald-200">RETURNED</span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-6 border-t border-slate-100 flex justify-center bg-slate-50/50">
+<button class="text-sm font-black text-primary-blue hover:text-blue-800 transition-colors uppercase tracking-widest">View Complete Archive</button>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-slate-50 border-t border-slate-200 mt-20">
+<div class="max-w-7xl mx-auto px-6 py-12 text-slate-500 text-xs flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-primary-blue grayscale opacity-70 mb-2">
+<span class="material-symbols-outlined text-2xl">auto_stories</span>
+<h2 class="text-lg font-bold tracking-tight uppercase">Athenaeum</h2>
+</div>
+<p>© 2024 Athenaeum Library Management System. Built for academic excellence.</p>
+</div>
+<div class="flex gap-8 font-bold text-slate-600 uppercase tracking-tighter">
+<a class="hover:text-primary-blue transition-colors" href="#">Library Policy</a>
+<a class="hover:text-primary-blue transition-colors" href="#">Help Center</a>
+<a class="hover:text-primary-blue transition-colors" href="#">Contact Librarian</a>
+</div>
+</div>
+</footer>
+
+</body></html>

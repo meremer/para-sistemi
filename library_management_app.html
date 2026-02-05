@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="tr" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kütüphane Yönetim Sistemi</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.0/crypto-js.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e40af",
+                        "secondary-red": "#dc2626",
+                        "background-light": "#f8fafc",
+                        "success": "#16a34a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-slate-900 overflow-hidden">
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex items-center justify-center">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="flex items-center justify-center mb-8">
+                    <div class="bg-blue-100 p-3 rounded-xl">
+                        <span class="material-symbols-outlined text-4xl text-primary">menu_book</span>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-bold text-center mb-2">Kütüphane Sistemi</h1>
+                <p class="text-center text-slate-600 mb-8">Kitap Yönetim Platformu</p>
+
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Kullanıcı Adı</label>
+                        <input type="text" id="loginUsername" placeholder="Kullanıcı adınız" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Şifre</label>
+                        <input type="password" id="loginPassword" placeholder="Şifreniz" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="loginAdmin" name="role" value="admin" checked class="w-4 h-4">
+                        <label for="loginAdmin" class="ml-2 text-sm font-medium">Admin</label>
+                        <input type="radio" id="loginUser" name="role" value="user" class="w-4 h-4 ml-4">
+                        <label for="loginUser" class="ml-2 text-sm font-medium">Kullanıcı</label>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg transition-all">Giriş Yap</button>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-slate-200">
+                    <p class="text-center text-sm text-slate-600 mb-4">Demo Hesapları:</p>
+                    <div class="space-y-2 text-xs text-slate-600">
+                        <p><strong>Admin:</strong> admin / 1234</p>
+                        <p><strong>Kullanıcı:</strong> user1 / 1234</p>
+                    </div>
+                </div>
+
+                <div id="loginMessage" class="mt-4 p-3 rounded-lg hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboard" class="hidden min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 border-r border-slate-200 bg-white flex flex-col">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-200">
+                <div class="bg-primary/10 p-2 rounded-lg">
+                    <span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">LibAdmin</h1>
+                    <p class="text-xs text-slate-500">Yönetim Sistemi</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <button onclick="switchAdminTab('dashboard')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white font-medium transition-colors">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Kontrol Paneli</span>
+                </button>
+                <button onclick="switchAdminTab('books')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined">book</span>
+                    <span>Kitaplar</span>
+                </button>
+                <button onclick="switchAdminTab('lending')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined">handshake</span>
+                    <span>Ödünç İşlemleri</span>
+                </button>
+                <button onclick="switchAdminTab('members')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>Kullanıcılar</span>
+                </button>
+            </nav>
+            <div class="p-4 mt-auto border-t border-slate-200">
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="text-sm font-medium">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 flex items-center justify-between px-8 border-b border-slate-200 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                <h2 id="adminPageTitle" class="text-xl font-bold tracking-tight">Kontrol Paneli</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="openAddBookModal()" class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl">add</span>
+                        Kitap Ekle
+                    </button>
+                    <span id="adminUsername" class="text-sm font-medium text-slate-600"></span>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">TOPLAM KİTAP</p>
+                                <span class="material-symbols-outlined text-primary">library_books</span>
+                            </div>
+                            <p id="totalBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">ÖDÜNÇ KİTAP</p>
+                                <span class="material-symbols-outlined text-primary">import_contacts</span>
+                            </div>
+                            <p id="lendedBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">KULLANILABILDIK</p>
+                                <span class="material-symbols-outlined text-primary">check_circle</span>
+                            </div>
+                            <p id="availableBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-white border border-secondary-red/20 p-6 rounded-xl shadow-sm ring-1 ring-secondary-red/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">GEÇ KALAN</p>
+                                <span class="material-symbols-outlined text-secondary-red">warning</span>
+                            </div>
+                            <p id="overdueCount" class="text-3xl font-bold text-secondary-red">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books Tab -->
+                <div id="booksTab" class="hidden space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Tüm Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Yazar</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Toplam</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Mevcut</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booksList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lending Tab -->
+                <div id="lendingTab" class="hidden space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Ödünç İşlemleri</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Kullanıcı</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kitap</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lendingList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Tab -->
+                <div id="membersTab" class="hidden space-y-6">
+                    <button onclick="openAddUserModal()" class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all mb-4">
+                        <span class="material-symbols-outlined text-xl">add</span>
+                        Kullanıcı Ekle
+                    </button>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Tüm Kullanıcılar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Ad</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kullanıcı Adı</th>
+                                        <th class="px-6 py-3 text-left font-semibold">E-posta</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kayıt Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="membersList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- USER DASHBOARD -->
+    <div id="userDashboard" class="hidden min-h-screen flex">
+        <!-- User Sidebar -->
+        <aside class="w-64 flex-shrink-0 border-r border-slate-200 bg-white flex flex-col">
+            <div class="p-6 flex items-center gap-3 border-b border-slate-200">
+                <div class="bg-blue-100 p-2 rounded-lg">
+                    <span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">LibUser</h1>
+                    <p class="text-xs text-slate-500">Kişisel Kütüphane</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <button onclick="switchUserTab('browse')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-white font-medium transition-colors">
+                    <span class="material-symbols-outlined">explore</span>
+                    <span>Kitapları Gözat</span>
+                </button>
+                <button onclick="switchUserTab('borrowed')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined">import_contacts</span>
+                    <span>Ödünç Aldıklarım</span>
+                </button>
+                <button onclick="switchUserTab('history')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <span class="material-symbols-outlined">history</span>
+                    <span>Geçmiş</span>
+                </button>
+            </nav>
+            <div class="p-4 mt-auto border-t border-slate-200">
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="text-sm font-medium">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- User Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 flex items-center justify-between px-8 border-b border-slate-200 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                <h2 id="userPageTitle" class="text-xl font-bold tracking-tight">Kitapları Gözat</h2>
+                <span id="userUsername" class="text-sm font-medium text-slate-600"></span>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- Browse Tab -->
+                <div id="browseTab" class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Kütüphanedeki Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Yazar</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kategori</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Mevcut</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userBrowseList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Borrowed Tab -->
+                <div id="borrowedTab" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">ÖDÜNÇ ALINAN</p>
+                                <span class="material-symbols-outlined text-primary">import_contacts</span>
+                            </div>
+                            <p id="userBorrowedCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">OKUNMUŞ</p>
+                                <span class="material-symbols-outlined text-success">check_circle</span>
+                            </div>
+                            <p id="userReadCount" class="text-3xl font-bold text-success">0</p>
+                        </div>
+                        <div class="bg-white border border-secondary-red/20 p-6 rounded-xl shadow-sm ring-1 ring-secondary-red/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-slate-500 text-sm font-medium">GEÇ KALAN</p>
+                                <span class="material-symbols-outlined text-secondary-red">warning</span>
+                            </div>
+                            <p id="userOverdueCount" class="text-3xl font-bold text-secondary-red">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Ödünç Aldığım Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userBorrowedList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="historyTab" class="hidden space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h3 class="text-lg font-bold">Ödünç Geçmişi</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userHistoryList" class="divide-y divide-slate-200">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ADD BOOK MODAL -->
+    <div id="addBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onclick="closeAddBookModal()"></div>
+        <div class="relative bg-white w-full max-w-2xl rounded-xl shadow-2xl border-2 border-primary overflow-hidden fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+                <h3 class="text-xl font-bold">Kitap Ekle</h3>
+                <button onclick="closeAddBookModal()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="addBookForm" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kitap Başlığı *</label>
+                        <input type="text" id="bookTitle" placeholder="ör. Gece Kütüphanesi" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Yazar *</label>
+                        <input type="text" id="bookAuthor" placeholder="ör. Matt Haig" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">ISBN *</label>
+                        <input type="text" id="bookISBN" placeholder="978-0..." class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Toplam Kopya Sayısı</label>
+                        <input type="number" id="bookCopies" placeholder="5" min="1" value="1" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kategori</label>
+                        <select id="bookCategory" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                            <option>Seçiniz</option>
+                            <option>Kurgu</option>
+                            <option>Kurgusal Olmayan</option>
+                            <option>Bilim</option>
+                            <option>Tarih</option>
+                            <option>Biyografi</option>
+                            <option>Çocuk</option>
+                            <option>Genç Yetişkin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Yayın Yılı</label>
+                        <input type="number" id="bookYear" placeholder="2024" min="1900" max="2100" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                    </div>
+                </div>
+                <p class="text-xs text-secondary-red italic flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">info</span>
+                    * ile işaretli alanlar zorunludur.
+                </p>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="closeAddBookModal()" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">İptal</button>
+                <button onclick="addBook()" class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg transition-all">Kitap Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD USER MODAL -->
+    <div id="addUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onclick="closeAddUserModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-xl shadow-2xl border-2 border-primary overflow-hidden fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+                <h3 class="text-xl font-bold">Kullanıcı Ekle</h3>
+                <button onclick="closeAddUserModal()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="addUserForm" class="p-8 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ad Soyad *</label>
+                    <input type="text" id="newUserName" placeholder="Adı Soyadı" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kullanıcı Adı *</label>
+                    <input type="text" id="newUsername" placeholder="user123" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">E-posta *</label>
+                    <input type="email" id="newUserEmail" placeholder="email@example.com" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Şifre *</label>
+                    <input type="password" id="newUserPassword" placeholder="Şifre" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="closeAddUserModal()" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">İptal</button>
+                <button onclick="addUser()" class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg transition-all">Kullanıcı Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEND BOOK MODAL -->
+    <div id="lendBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onclick="closeLendModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-xl shadow-2xl border-2 border-primary overflow-hidden fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+                <h3 class="text-xl font-bold">Kitap Ödünç Ver</h3>
+                <button onclick="closeLendModal()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="lendBookForm" class="p-8 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kullanıcı *</label>
+                    <select id="lendUserId" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                        <option>Seçiniz</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kitap *</label>
+                    <input type="text" id="lendBookTitle" placeholder="Kitap adı" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" readonly>
+                    <input type="hidden" id="lendBookId">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ödünç Tarihi *</label>
+                    <input type="date" id="lendDate" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Dönüş Tarihi *</label>
+                    <input type="date" id="returnDate" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all" required>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="closeLendModal()" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">İptal</button>
+                <button onclick="submitLend()" class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg transition-all">Ödünç Ver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN BOOK MODAL -->
+    <div id="returnBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onclick="closeReturnModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-xl shadow-2xl border-2 border-primary overflow-hidden fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+                <h3 class="text-xl font-bold">Kitap İade Et</h3>
+                <button onclick="closeReturnModal()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="returnBookForm" class="p-8 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kitap</label>
+                    <input type="text" id="returnBookTitle" placeholder="Kitap adı" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg" readonly>
+                    <input type="hidden" id="returnLendingId">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Okunmuş Mu?</label>
+                    <select id="readStatus" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                        <option value="false">Hayır</option>
+                        <option value="true">Evet</option>
+                    </select>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="closeReturnModal()" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">İptal</button>
+                <button onclick="submitReturn()" class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg transition-all">İade Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BORROW BOOK MODAL (User) -->
+    <div id="userBorrowModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" onclick="closeUserBorrowModal()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-xl shadow-2xl border-2 border-primary overflow-hidden fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-white">
+                <h3 class="text-xl font-bold">Kitap İstek Et</h3>
+                <button onclick="closeUserBorrowModal()" class="text-white/80 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="userBorrowForm" class="p-8 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kitap</label>
+                    <input type="text" id="userBorrowBookTitle" placeholder="Kitap adı" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg" readonly>
+                    <input type="hidden" id="userBorrowBookId">
+                </div>
+                <p class="text-sm text-slate-600">Kütüphaneci tarafından onaylanması için bir istek oluşturulacaktır.</p>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="closeUserBorrowModal()" class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-200 transition-all">İptal</button>
+                <button onclick="submitUserBorrow()" class="px-8 py-2.5 rounded-lg text-sm font-bold bg-primary hover:bg-blue-800 text-white shadow-lg transition-all">İstek Gönder</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATABASE STRUCTURE ====================
+        class LibraryDatabase {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                if (!localStorage.getItem('libraryDB')) {
+                    localStorage.setItem('libraryDB', JSON.stringify({
+                        users: [
+                            { id: 1, username: 'admin', password: this.hashPassword('1234'), fullname: 'Admin User', email: 'admin@lib.com', role: 'admin', createdAt: new Date().toISOString() },
+                            { id: 2, username: 'user1', password: this.hashPassword('1234'), fullname: 'Demo Kullanıcı', email: 'user1@lib.com', role: 'user', createdAt: new Date().toISOString() }
+                        ],
+                        books: [
+                            { id: 1, title: 'Gece Kütüphanesi', author: 'Matt Haig', isbn: '978-0-330-47-495-8', totalCopies: 5, availableCopies: 3, category: 'Kurgu', year: 2020 },
+                            { id: 2, title: '1984', author: 'George Orwell', isbn: '978-0-451-52493-2', totalCopies: 4, availableCopies: 2, category: 'Kurgu', year: 2008 },
+                            { id: 3, title: 'Sapiens', author: 'Yuval Noah Harari', isbn: '978-0-062-31625-6', totalCopies: 3, availableCopies: 3, category: 'Kurgusal Olmayan', year: 2014 }
+                        ],
+                        lendings: [
+                            { id: 1, userId: 2, bookId: 1, lendDate: '2026-01-15', returnDate: '2026-02-15', actualReturnDate: null, status: 'active', read: false }
+                        ],
+                        nextUserId: 3,
+                        nextBookId: 4,
+                        nextLendingId: 2
+                    }));
+                }
+            }
+
+            hashPassword(password) {
+                return CryptoJS.SHA256(password).toString();
+            }
+
+            getDB() {
+                return JSON.parse(localStorage.getItem('libraryDB'));
+            }
+
+            saveDB(data) {
+                localStorage.setItem('libraryDB', JSON.stringify(data));
+            }
+
+            // User Methods
+            getUserByUsername(username) {
+                const db = this.getDB();
+                return db.users.find(u => u.username === username);
+            }
+
+            addUser(username, password, fullname, email) {
+                const db = this.getDB();
+                if (db.users.find(u => u.username === username)) return null;
+                
+                const newUser = {
+                    id: db.nextUserId++,
+                    username,
+                    password: this.hashPassword(password),
+                    fullname,
+                    email,
+                    role: 'user',
+                    createdAt: new Date().toISOString()
+                };
+                db.users.push(newUser);
+                this.saveDB(db);
+                return newUser;
+            }
+
+            getAllUsers() {
+                return this.getDB().users.filter(u => u.role === 'user');
+            }
+
+            // Book Methods
+            addBook(title, author, isbn, totalCopies, category, year) {
+                const db = this.getDB();
+                const newBook = {
+                    id: db.nextBookId++,
+                    title,
+                    author,
+                    isbn,
+                    totalCopies: parseInt(totalCopies),
+                    availableCopies: parseInt(totalCopies),
+                    category,
+                    year: parseInt(year) || new Date().getFullYear()
+                };
+                db.books.push(newBook);
+                this.saveDB(db);
+                return newBook;
+            }
+
+            getAllBooks() {
+                return this.getDB().books;
+            }
+
+            getBook(id) {
+                return this.getDB().books.find(b => b.id === id);
+            }
+
+            updateBook(id, updates) {
+                const db = this.getDB();
+                const book = db.books.find(b => b.id === id);
+                if (book) {
+                    Object.assign(book, updates);
+                    this.saveDB(db);
+                }
+                return book;
+            }
+
+            // Lending Methods
+            addLending(userId, bookId, lendDate, returnDate) {
+                const db = this.getDB();
+                const book = db.books.find(b => b.id === bookId);
+                
+                if (!book || book.availableCopies <= 0) return null;
+                
+                const lending = {
+                    id: db.nextLendingId++,
+                    userId,
+                    bookId,
+                    lendDate,
+                    returnDate,
+                    actualReturnDate: null,
+                    status: 'active',
+                    read: false
+                };
+                
+                book.availableCopies--;
+                db.lendings.push(lending);
+                this.saveDB(db);
+                return lending;
+            }
+
+            getAllLendings() {
+                return this.getDB().lendings;
+            }
+
+            getLendingsByUser(userId) {
+                return this.getDB().lendings.filter(l => l.userId === userId);
+            }
+
+            returnBook(lendingId, read = false) {
+                const db = this.getDB();
+                const lending = db.lendings.find(l => l.id === lendingId);
+                if (lending) {
+                    lending.status = 'returned';
+                    lending.actualReturnDate = new Date().toISOString().split('T')[0];
+                    lending.read = read;
+                    
+                    const book = db.books.find(b => b.id === lending.bookId);
+                    if (book) book.availableCopies++;
+                    
+                    this.saveDB(db);
+                }
+                return lending;
+            }
+        }
+
+        const db = new LibraryDatabase();
+        let currentUser = null;
+
+        // ==================== AUTHENTICATION ====================
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            const user = db.getUserByUsername(username);
+            if (!user || user.password !== db.hashPassword(password)) {
+                showMessage('loginMessage', 'Kullanıcı adı veya şifre yanlış', 'error');
+                return;
+            }
+
+            if (user.role !== role) {
+                showMessage('loginMessage', 'Bu rolle giriş yapamazsınız', 'error');
+                return;
+            }
+
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            document.getElementById('loginPage').classList.add('hidden');
+            if (user.role === 'admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('adminUsername').textContent = user.fullname;
+                loadAdminDashboard();
+            } else {
+                document.getElementById('userDashboard').classList.remove('hidden');
+                document.getElementById('userUsername').textContent = user.fullname;
+                loadUserDashboard();
+            }
+        });
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('userDashboard').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginMessage').classList.add('hidden');
+        }
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        // ==================== ADMIN FUNCTIONS ====================
+        function switchAdminTab(tab) {
+            document.querySelectorAll('[id$="Tab"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+            
+            document.querySelectorAll('.adminNavBtn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+            event.target.closest('.adminNavBtn').classList.add('bg-primary', 'text-white');
+            event.target.closest('.adminNavBtn').classList.remove('text-slate-600', 'hover:bg-slate-100');
+
+            const titles = { dashboard: 'Kontrol Paneli', books: 'Kitaplar', lending: 'Ödünç İşlemleri', members: 'Kullanıcılar' };
+            document.getElementById('adminPageTitle').textContent = titles[tab] || 'Kontrol Paneli';
+
+            if (tab === 'books') loadBooksTable();
+            if (tab === 'lending') loadLendingTable();
+            if (tab === 'members') loadMembersTable();
+        }
+
+        function loadAdminDashboard() {
+            const books = db.getAllBooks();
+            const lendings = db.getAllLendings();
+            
+            const totalBooks = books.reduce((sum, b) => sum + b.totalCopies, 0);
+            const lendedBooks = lendings.filter(l => l.status === 'active').length;
+            const availableBooks = books.reduce((sum, b) => sum + b.availableCopies, 0);
+            const overdue = lendings.filter(l => l.status === 'active' && new Date(l.returnDate) < new Date()).length;
+
+            document.getElementById('totalBooksCount').textContent = totalBooks;
+            document.getElementById('lendedBooksCount').textContent = lendedBooks;
+            document.getElementById('availableBooksCount').textContent = availableBooks;
+            document.getElementById('overdueCount').textContent = overdue;
+        }
+
+        function loadBooksTable() {
+            const books = db.getAllBooks();
+            const tbody = document.getElementById('booksList');
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td class="px-6 py-4 font-medium">${book.title}</td>
+                    <td class="px-6 py-4">${book.author}</td>
+                    <td class="px-6 py-4">${book.totalCopies}</td>
+                    <td class="px-6 py-4"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">${book.availableCopies}</span></td>
+                    <td class="px-6 py-4">${book.totalCopies - book.availableCopies}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="openLendModal(${book.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">Ödünç Ver</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadLendingTable() {
+            const lendings = db.getAllLendings();
+            const tbody = document.getElementById('lendingList');
+            const books = db.getAllBooks();
+            const users = db.getDB().users;
+
+            tbody.innerHTML = lendings.map(lending => {
+                const book = books.find(b => b.id === lending.bookId);
+                const user = users.find(u => u.id === lending.userId);
+                const isOverdue = lending.status === 'active' && new Date(lending.returnDate) < new Date();
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 font-medium">${user?.fullname || 'Bilinmeyen'}</td>
+                        <td class="px-6 py-4">${book?.title || 'Silindi'}</td>
+                        <td class="px-6 py-4">${lending.lendDate}</td>
+                        <td class="px-6 py-4">${lending.returnDate}</td>
+                        <td class="px-6 py-4">
+                            ${lending.status === 'active' 
+                                ? `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-800' : ''}">
+                                    ${isOverdue ? 'GEÇ KALAN' : 'AKTİF'}
+                                  </span>`
+                                : `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">İADE EDİLDİ</span>`
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            ${lending.status === 'active' 
+                                ? `<button onclick="openReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Al</button>`
+                                : '-'
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadMembersTable() {
+            const users = db.getAllUsers();
+            const tbody = document.getElementById('membersList');
+            
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td class="px-6 py-4 font-medium">${user.fullname}</td>
+                    <td class="px-6 py-4">${user.username}</td>
+                    <td class="px-6 py-4">${user.email}</td>
+                    <td class="px-6 py-4">${new Date(user.createdAt).toLocaleDateString('tr-TR')}</td>
+                    <td class="px-6 py-4">
+                        <button class="text-slate-400 cursor-not-allowed text-sm">Sil</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openAddBookModal() {
+            document.getElementById('addBookModal').classList.remove('hidden');
+            document.getElementById('addBookForm').reset();
+        }
+
+        function closeAddBookModal() {
+            document.getElementById('addBookModal').classList.add('hidden');
+        }
+
+        function addBook() {
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const isbn = document.getElementById('bookISBN').value.trim();
+            const copies = document.getElementById('bookCopies').value;
+            const category = document.getElementById('bookCategory').value;
+            const year = document.getElementById('bookYear').value;
+
+            if (!title || !author || !isbn) {
+                alert('Lütfen tüm zorunlu alanları doldurunuz');
+                return;
+            }
+
+            if (category === 'Seçiniz') {
+                alert('Lütfen bir kategori seçiniz');
+                return;
+            }
+
+            db.addBook(title, author, isbn, copies, category, year);
+            closeAddBookModal();
+            loadBooksTable();
+            loadAdminDashboard();
+            showMessage('loginMessage', 'Kitap başarıyla eklendi', 'success');
+        }
+
+        function openAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('hidden');
+            document.getElementById('addUserForm').reset();
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.add('hidden');
+        }
+
+        function addUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const username = document.getElementById('newUsername').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const password = document.getElementById('newUserPassword').value;
+
+            if (!name || !username || !email || !password) {
+                alert('Lütfen tüm alanları doldurunuz');
+                return;
+            }
+
+            if (db.getUserByUsername(username)) {
+                alert('Bu kullanıcı adı zaten kullanılıyor');
+                return;
+            }
+
+            db.addUser(username, password, name, email);
+            closeAddUserModal();
+            loadMembersTable();
+            showMessage('loginMessage', 'Kullanıcı başarıyla eklendi', 'success');
+        }
+
+        function openLendModal(bookId) {
+            const book = db.getBook(bookId);
+            if (book.availableCopies <= 0) {
+                alert('Bu kitabın mevcut kopyası yoktur');
+                return;
+            }
+
+            document.getElementById('lendBookId').value = bookId;
+            document.getElementById('lendBookTitle').value = book.title;
+            
+            const users = db.getAllUsers();
+            const select = document.getElementById('lendUserId');
+            select.innerHTML = '<option>Seçiniz</option>' + users.map(u => `<option value="${u.id}">${u.fullname}</option>`).join('');
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('lendDate').value = today;
+            document.getElementById('lendDate').max = today;
+            
+            const returnDateEl = document.getElementById('returnDate');
+            returnDateEl.min = today;
+            
+            document.getElementById('lendBookModal').classList.remove('hidden');
+        }
+
+        function closeLendModal() {
+            document.getElementById('lendBookModal').classList.add('hidden');
+        }
+
+        function submitLend() {
+            const userId = parseInt(document.getElementById('lendUserId').value);
+            const bookId = parseInt(document.getElementById('lendBookId').value);
+            const lendDate = document.getElementById('lendDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+
+            if (!userId || userId === 0) {
+                alert('Lütfen bir kullanıcı seçiniz');
+                return;
+            }
+
+            if (!returnDate) {
+                alert('Lütfen dönüş tarihi belirtiniz');
+                return;
+            }
+
+            if (new Date(lendDate) > new Date(returnDate)) {
+                alert('Dönüş tarihi ödünç tarihinden sonra olmalıdır');
+                return;
+            }
+
+            const result = db.addLending(userId, bookId, lendDate, returnDate);
+            if (!result) {
+                alert('Ödünç işlemi başarısız oldu');
+                return;
+            }
+
+            closeLendModal();
+            loadLendingTable();
+            loadBooksTable();
+            loadAdminDashboard();
+            showMessage('loginMessage', 'Kitap başarıyla ödünç verildi', 'success');
+        }
+
+        function openReturnModal(lendingId) {
+            const lending = db.getAllLendings().find(l => l.id === lendingId);
+            const book = db.getBook(lending.bookId);
+            
+            document.getElementById('returnLendingId').value = lendingId;
+            document.getElementById('returnBookTitle').value = book.title;
+            document.getElementById('readStatus').value = 'false';
+            
+            document.getElementById('returnBookModal').classList.remove('hidden');
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnBookModal').classList.add('hidden');
+        }
+
+        function submitReturn() {
+            const lendingId = parseInt(document.getElementById('returnLendingId').value);
+            const read = document.getElementById('readStatus').value === 'true';
+
+            db.returnBook(lendingId, read);
+            closeReturnModal();
+            loadLendingTable();
+            loadAdminDashboard();
+            loadBooksTable();
+            showMessage('loginMessage', 'Kitap başarıyla iade alındı', 'success');
+        }
+
+        // ==================== USER FUNCTIONS ====================
+        function switchUserTab(tab) {
+            document.getElementById('browseTab').classList.add('hidden');
+            document.getElementById('borrowedTab').classList.add('hidden');
+            document.getElementById('historyTab').classList.add('hidden');
+            
+            if (tab === 'browse') document.getElementById('browseTab').classList.remove('hidden');
+            if (tab === 'borrowed') {
+                document.getElementById('borrowedTab').classList.remove('hidden');
+                loadUserBorrowedBooks();
+            }
+            if (tab === 'history') {
+                document.getElementById('historyTab').classList.remove('hidden');
+                loadUserHistory();
+            }
+
+            document.querySelectorAll('.userNavBtn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+            event.target.closest('.userNavBtn').classList.add('bg-primary', 'text-white');
+            event.target.closest('.userNavBtn').classList.remove('text-slate-600', 'hover:bg-slate-100');
+
+            const titles = { browse: 'Kitapları Gözat', borrowed: 'Ödünç Aldıklarım', history: 'Geçmiş' };
+            document.getElementById('userPageTitle').textContent = titles[tab] || 'Kitapları Gözat';
+        }
+
+        function loadUserDashboard() {
+            const books = db.getAllBooks();
+            const tbody = document.getElementById('userBrowseList');
+            
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td class="px-6 py-4 font-medium">${book.title}</td>
+                    <td class="px-6 py-4">${book.author}</td>
+                    <td class="px-6 py-4">${book.category}</td>
+                    <td class="px-6 py-4">
+                        ${book.availableCopies > 0 
+                            ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">${book.availableCopies} mevcut</span>`
+                            : `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">Mevcut değil</span>`
+                        }
+                    </td>
+                    <td class="px-6 py-4">
+                        ${book.availableCopies > 0 
+                            ? `<button onclick="openUserBorrowModal(${book.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İstek Et</button>`
+                            : `<button class="text-slate-400 cursor-not-allowed text-sm">Mevcut değil</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadUserBorrowedBooks() {
+            const lendings = db.getLendingsByUser(currentUser.id).filter(l => l.status === 'active');
+            const books = db.getAllBooks();
+            const tbody = document.getElementById('userBorrowedList');
+
+            const borrowed = lendings.length;
+            const read = lendings.filter(l => l.read).length;
+            const overdue = lendings.filter(l => new Date(l.returnDate) < new Date()).length;
+
+            document.getElementById('userBorrowedCount').textContent = borrowed;
+            document.getElementById('userReadCount').textContent = read;
+            document.getElementById('userOverdueCount').textContent = overdue;
+
+            tbody.innerHTML = lendings.map(lending => {
+                const book = books.find(b => b.id === lending.bookId);
+                const isOverdue = new Date(lending.returnDate) < new Date();
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 font-medium">${book?.title}</td>
+                        <td class="px-6 py-4">${lending.lendDate}</td>
+                        <td class="px-6 py-4">${lending.returnDate}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                ${isOverdue ? 'GEÇ KALAN' : 'AKTİF'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <button onclick="openUserReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Et</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadUserHistory() {
+            const lendings = db.getLendingsByUser(currentUser.id).filter(l => l.status === 'returned');
+            const books = db.getAllBooks();
+            const tbody = document.getElementById('userHistoryList');
+
+            tbody.innerHTML = lendings.map(lending => {
+                const book = books.find(b => b.id === lending.bookId);
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 font-medium">${book?.title}</td>
+                        <td class="px-6 py-4">${lending.lendDate}</td>
+                        <td class="px-6 py-4">${lending.actualReturnDate}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                ${lending.read ? '✓ Okunmuş' : 'Okunmamış'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openUserBorrowModal(bookId) {
+            const book = db.getBook(bookId);
+            document.getElementById('userBorrowBookId').value = bookId;
+            document.getElementById('userBorrowBookTitle').value = book.title;
+            document.getElementById('userBorrowModal').classList.remove('hidden');
+        }
+
+        function closeUserBorrowModal() {
+            document.getElementById('userBorrowModal').classList.add('hidden');
+        }
+
+        function submitUserBorrow() {
+            const bookId = parseInt(document.getElementById('userBorrowBookId').value);
+            const book = db.getBook(bookId);
+            
+            // Create a lending request (in real app, this would be pending until admin approves)
+            const today = new Date().toISOString().split('T')[0];
+            const returnDate = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+            
+            db.addLending(currentUser.id, bookId, today, returnDate);
+            closeUserBorrowModal();
+            loadUserDashboard();
+            loadUserBorrowedBooks();
+            showMessage('loginMessage', 'Kitap ödünç alma isteği gönderildi', 'success');
+        }
+
+        function openUserReturnModal(lendingId) {
+            const lending = db.getAllLendings().find(l => l.id === lendingId);
+            const book = db.getBook(lending.bookId);
+            
+            document.getElementById('returnLendingId').value = lendingId;
+            document.getElementById('returnBookTitle').value = book.title;
+            document.getElementById('readStatus').value = 'false';
+            
+            document.getElementById('returnBookModal').classList.remove('hidden');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('currentUser');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                document.getElementById('loginPage').classList.add('hidden');
+                if (currentUser.role === 'admin') {
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    document.getElementById('adminUsername').textContent = currentUser.fullname;
+                    loadAdminDashboard();
+                } else {
+                    document.getElementById('userDashboard').classList.remove('hidden');
+                    document.getElementById('userUsername').textContent = currentUser.fullname;
+                    loadUserDashboard();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

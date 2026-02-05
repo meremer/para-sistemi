@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin View: Member Profile &amp; History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "danger": "#dc2626",
+                        "background-main": "#ffffff",
+                        "background-alt": "#f8fafc",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-slate-50 text-slate-900 font-display;
+            }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-10 py-3 sticky top-0 z-50 shadow-sm">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 text-lg font-bold leading-tight tracking-tight">LibraryAdmin</h2>
+</div>
+<nav class="flex items-center gap-9">
+<a class="text-slate-600 hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary py-1" href="#">Members</a>
+<a class="text-slate-600 hover:text-primary text-sm font-medium transition-colors" href="#">Catalog</a>
+<a class="text-slate-600 hover:text-primary text-sm font-medium transition-colors" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden border border-slate-200">
+<div class="text-slate-400 flex bg-slate-50 items-center justify-center pl-3">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 border-none bg-slate-50 text-slate-900 focus:ring-0 h-full placeholder:text-slate-400 px-3 text-sm font-normal" placeholder="Search members..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDsny6qPARDHSS1vf3hQIuoyeKsG9UIyGcZ0ThoP4RFrz6bzd6nFB006fZPltCdSeiwViuSq6OKEVA2RnsRcZyDv3oUCWzj0fz65blBINIXy9H6om6IJS4IBIHhxDCViYif5knzaSntEcJZQ4aa-OEStHF_qP_DR3KjJBl5m1xr4dyXA4XQchdZe_I74nSnVHQLV82GH1U7ftnKAzKSsSAkreH82-yZ0Ra8vqqZmUpmJVTmFrAB0jmqUHNleCz8PQD9t0KwxcMwyi_q");'></div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto p-8">
+<div class="flex flex-col lg:flex-row gap-8">
+<div class="flex-1 space-y-8">
+<div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-center gap-6">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-24 w-24 ring-4 ring-primary/5" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAoj3TnneWsFBZBKjwPVt0fwff848vuNUx_lgSs8tuYIvNr-vF9z63D0Y_ieGuBoI1dmA4fzSbTKC62zzHhYVUGVXjEZzTyyTjSw0OwlIf6tHCYaM_tWO9fcQzh3x_ECCT6IGTyhWTKdDB9vZ836llzUZQD7vEKIfln8p1obmxPlienn58Ck8JWgpc4E0yoOPCgJYaeUYcrGKcYtDQ8d_IXzFRSf0PnX5ip0XQOkTzQ6DPeL85zOqm0otzccD-Ik51qHO9YIHGdCpYk");'></div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 text-3xl font-bold tracking-tight">John Doe</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Member ID: #MBR-8829</span>
+<span class="text-slate-300 text-sm">•</span>
+<p class="text-slate-500 text-sm">Member since Jan 2022</p>
+</div>
+<div class="flex items-center gap-4 mt-3 text-slate-600">
+<div class="flex items-center gap-1.5 text-sm">
+<span class="material-symbols-outlined text-lg text-primary">mail</span>
+<span>john.doe@email.com</span>
+</div>
+<div class="flex items-center gap-1.5 text-sm">
+<span class="material-symbols-outlined text-lg text-primary">call</span>
+<span>+1 (555) 000-1234</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold hover:bg-blue-700 transition-colors shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-xl">chat_bubble</span>
+<span>Message</span>
+</button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-lg h-11 px-6 bg-slate-100 text-slate-900 text-sm font-bold hover:bg-slate-200 transition-colors border border-slate-200">
+<span class="material-symbols-outlined text-xl">edit</span>
+<span>Edit Profile</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-white flex-1 flex flex-col gap-2 rounded-xl p-6 border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between text-slate-500">
+<p class="text-xs font-bold uppercase tracking-wider">Total Books Read</p>
+<span class="material-symbols-outlined text-xl text-primary">auto_stories</span>
+</div>
+<div class="flex items-baseline gap-3">
+<p class="text-slate-900 text-4xl font-black leading-tight">45</p>
+<p class="text-emerald-600 text-sm font-bold bg-emerald-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>+5%
+                            </p>
+</div>
+</div>
+<div class="bg-white flex-1 flex flex-col gap-2 rounded-xl p-6 border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between text-slate-500">
+<p class="text-xs font-bold uppercase tracking-wider">Currently Borrowed</p>
+<span class="material-symbols-outlined text-xl text-primary">collections_bookmark</span>
+</div>
+<div class="flex items-baseline gap-3">
+<p class="text-slate-900 text-4xl font-black leading-tight">2</p>
+<p class="text-slate-400 text-sm font-bold bg-slate-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">horizontal_rule</span>0%
+                            </p>
+</div>
+</div>
+<div class="bg-white flex-1 flex flex-col gap-2 rounded-xl p-6 border border-slate-200 shadow-sm border-l-4 border-l-danger">
+<div class="flex items-center justify-between text-slate-500">
+<p class="text-xs font-bold uppercase tracking-wider">Late Returns</p>
+<span class="material-symbols-outlined text-xl text-danger">warning</span>
+</div>
+<div class="flex items-baseline gap-3">
+<p class="text-slate-900 text-4xl font-black leading-tight">1</p>
+<p class="text-danger text-sm font-bold bg-red-50 px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>+2%
+                            </p>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="flex border-b border-slate-200 px-6 overflow-x-auto scrollbar-hide">
+<a class="flex items-center gap-2 border-b-2 border-primary text-primary py-4 whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="text-sm font-bold">Reading History</span>
+</a>
+<a class="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-8 py-4 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">receipt_long</span>
+<span class="text-sm font-bold">Fines &amp; Dues</span>
+</a>
+<a class="flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 px-8 py-4 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">settings_account_box</span>
+<span class="text-sm font-bold">Account Settings</span>
+</a>
+</div>
+<div class="p-6">
+<div class="flex flex-col md:flex-row gap-4">
+<label class="flex-1">
+<div class="flex w-full h-11 items-stretch rounded-lg overflow-hidden border border-slate-200">
+<div class="text-slate-400 flex bg-slate-50 items-center justify-center pl-4">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="flex w-full border-none bg-slate-50 text-slate-900 focus:ring-0 h-full placeholder:text-slate-400 px-3 text-sm" placeholder="Search history by title or author..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 rounded-lg h-11 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+<span>Filter</span>
+</button>
+<button class="flex items-center gap-2 rounded-lg h-11 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-xl">calendar_month</span>
+<span>Date Range</span>
+</button>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-widest border-y border-slate-200">
+<th class="px-6 py-4">Book Details</th>
+<th class="px-6 py-4">Lend Date</th>
+<th class="px-6 py-4">Return Date</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-blue-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-14 bg-slate-100 rounded shadow-sm overflow-hidden flex-shrink-0">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDSF7IJ4deWDrhFLktsPQ29UyfT4JE-lkUe2Hww617Fq820hENVmPIG0-1n_W6Zug2pFksLc5Xx3z02J-5xuS-1In4k2XySe7r_EoV3t2TUFM5SdFJWLrIi7rP5zExLfopklkdr1r0ZnUUPWnLwVPTmbeBCBqxZY7MVTdAzqfhc1akkYYj3SKEy7N96KKISLG1ipMZJt_Ca7qqgX6F7d98TS1Jdu1kg2lhcFGAIo68CuY-de0Ii6cdHYM2S7Ara9u8mz3p8LGcvTgWe');"></div>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 leading-tight">The Great Gatsby</p>
+<p class="text-xs text-slate-500 mt-0.5">F. Scott Fitzgerald</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-700">Oct 12, 2023</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-danger font-medium">Due: Oct 26, 2023</p>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-danger border border-red-100">
+<span class="size-1.5 rounded-full bg-danger animate-pulse"></span>
+                                            Overdue
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-14 bg-slate-100 rounded shadow-sm overflow-hidden flex-shrink-0">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAkkzHpV1S8RauVjlw2qVKB0R9SFVKNRVGZY4177m7iZkbj79__Yk16iuXizTIHAo_HmbLZonjAbGPWLwfZeOGtVl3rqMi2AI--XP-WKdBGW_pr8qdkIQzweC6aV-VlY7AEDVia-Pe_rNgtMoCC-INsz2-CeqlszIAwQsvpfdFjE7hwi0gWAMyPEuqntjsN311xN1tMkH1Zn5F6JhzGYfycdgwQhB0rjz9mXi3FaL4au-RRMGGIfFZVTnqHZrqAB3Hc9f4Ngk9mR2Db');"></div>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 leading-tight">Clean Code</p>
+<p class="text-xs text-slate-500 mt-0.5">Robert C. Martin</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-700">Nov 01, 2023</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-500">Exp: Nov 15, 2023</p>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-primary border border-blue-100">
+<span class="size-1.5 rounded-full bg-primary"></span>
+                                            In Progress
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-14 bg-slate-100 rounded shadow-sm overflow-hidden flex-shrink-0">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGwnXDXYksGa2dCOs94-0bej4DfMsL4ZOqJhj7YQtYZr5SdrbvVzqZiimAT15xnBaBToiLpVpIu2M1q-VvSEtDGigMyybShFE1IPR8JbWXTGHXCTaLlDTKhIApItgmKUSOgutL49CkbKjaoTMqrbkcZN3we_PSCnqXCn3Ilmxrp2woM-v_oRX5hHRumlLK3NZ5-jK6TyXpzW2lt8R7ARBdFRr8KwW2rWV9edpqWLN349Lv4ULHu1kh_ciSOfALJs20Fpqs8gGJnU0s');"></div>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 leading-tight">Dune</p>
+<p class="text-xs text-slate-500 mt-0.5">Frank Herbert</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-700">Sep 15, 2023</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-700">Sep 28, 2023</p>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+<span class="size-1.5 rounded-full bg-slate-400"></span>
+                                            Returned
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+<p class="text-xs text-slate-500">Showing 1 to 10 of 45 records</p>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-200">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white text-xs font-bold shadow-sm shadow-primary/20">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 text-slate-700 text-xs font-bold border border-transparent hover:border-slate-200 transition-colors">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 text-slate-700 text-xs font-bold border border-transparent hover:border-slate-200 transition-colors">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 text-slate-700 border border-transparent hover:border-slate-200 transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<aside class="w-full lg:w-80 space-y-6">
+<div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+<h3 class="text-slate-900 text-base font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">bolt</span>
+                        Quick Actions
+                    </h3>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-12 px-4 bg-primary text-white text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">library_add</span>
+<span>Lend New Book</span>
+</button>
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-12 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-primary">mail</span>
+<span>Message Member</span>
+</button>
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-12 px-4 bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-slate-400">history_edu</span>
+<span>Generate History PDF</span>
+</button>
+</div>
+<div class="mt-6 pt-6 border-t border-slate-100">
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-12 px-4 bg-red-50 hover:bg-red-100 text-danger text-sm font-bold transition-colors border border-red-100">
+<span class="material-symbols-outlined">block</span>
+<span>Suspend Account</span>
+</button>
+</div>
+</div>
+<div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-slate-900 text-base font-bold">Internal Notes</h3>
+<button class="text-primary text-xs font-bold uppercase tracking-wider hover:underline">Add Note</button>
+</div>
+<div class="space-y-4">
+<div class="p-3 bg-slate-50 rounded-lg border-l-4 border-primary">
+<p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Oct 26, 2023 • Admin Smith</p>
+<p class="text-sm text-slate-700">Member mentioned they will be returning "The Great Gatsby" by tomorrow afternoon.</p>
+</div>
+<div class="p-3 bg-slate-50 rounded-lg border-l-4 border-slate-200">
+<p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-tight">Jan 12, 2023 • Admin Jane</p>
+<p class="text-sm text-slate-700">New member orientation completed. Preference for sci-fi and technical books.</p>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 rounded-xl p-6 border border-primary/10">
+<h3 class="text-slate-900 text-base font-bold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">event_available</span>
+                        Membership Stats
+                    </h3>
+<ul class="space-y-3">
+<li class="flex justify-between text-sm">
+<span class="text-slate-500">Total Borrowed</span>
+<span class="font-bold">128 books</span>
+</li>
+<li class="flex justify-between text-sm">
+<span class="text-slate-500">Avg. Lend Time</span>
+<span class="font-bold">12 days</span>
+</li>
+<li class="flex justify-between text-sm">
+<span class="text-slate-500">Next Renewal</span>
+<span class="font-bold text-primary">Jan 15, 2024</span>
+</li>
+</ul>
+</div>
+</aside>
+</div>
+</main>
+
+</body></html>

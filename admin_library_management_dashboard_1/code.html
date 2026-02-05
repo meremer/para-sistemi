@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Library Management Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3a8a", // Deep Blue
+                        "secondary": "#ef4444", // Vibrant Red
+                        "surface": "#ffffff",
+                        "accent-blue": "#f0f7ff",
+                        "sidebar-bg": "#0f172a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-white font-display text-slate-900">
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-sidebar-bg text-white flex flex-col shadow-xl z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-symbols-outlined text-white text-3xl">menu_book</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight">LibAdmin</h1>
+<p class="text-xs text-slate-400">Library Suite</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white font-medium shadow-lg shadow-primary/20" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">book</span>
+<span>Books</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Members</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span>Lending</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Reports</span>
+</a>
+</nav>
+<div class="p-4 mt-auto border-t border-slate-800">
+<div class="flex items-center gap-3 p-3 rounded-lg bg-slate-800/50">
+<div class="size-10 rounded-full bg-cover bg-center border-2 border-primary" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAcF0LpHsDkFmLunrG86RlCLgWQgE-aHul5___QjZQwx8DCOEcOJSiL99EtIM_Up_tYb2wnk6qwdeJaXu67vnmDsD-6tM-fxKuKXLjuk2MKT3ebBjzBihhxjoUG5u80gM7LPZFZbHudnkjvTfO2nu7RDa1A4X61LLH8R810oXzFXfuo75fxvI1pOJFRxi-r0uQCFS9QT92Xs_nVZUGkNFVijQ8CHgiSDloPBPbCaYBQtKeW_wFZHCsEca2IOMYi2PzLZPJuHs3TzfnM");'></div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold truncate">Alex Admin</p>
+<p class="text-[10px] text-slate-400 uppercase tracking-tighter">System Manager</p>
+</div>
+<button class="text-slate-400 hover:text-secondary">
+<span class="material-symbols-outlined text-xl">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col bg-white overflow-hidden">
+<header class="h-16 flex items-center justify-between px-8 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold text-slate-900 tracking-tight">System Overview</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative max-w-xs hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search catalog..." type="text"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined text-slate-600 cursor-pointer hover:text-primary transition-colors">notifications</span>
+<span class="absolute -top-1 -right-1 bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white">3</span>
+</div>
+<button class="bg-primary hover:bg-blue-900 text-white px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 shadow-md transition-all">
+<span class="material-symbols-outlined text-xl">add</span>
+                    Add New Book
+                </button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+<div class="bg-white border border-blue-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+<div class="absolute right-0 top-0 h-full w-1 bg-primary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-blue-50 rounded-lg text-primary">
+<span class="material-symbols-outlined">library_books</span>
+</div>
+<p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Total Books</p>
+</div>
+<div class="flex items-baseline justify-between">
+<p class="text-4xl font-black text-slate-900">12,450</p>
+<p class="text-emerald-600 text-xs font-bold flex items-center bg-emerald-50 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-xs">trending_up</span> 2.5%
+                        </p>
+</div>
+</div>
+<div class="bg-white border border-blue-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute right-0 top-0 h-full w-1 bg-primary/40"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-blue-50 rounded-lg text-primary">
+<span class="material-symbols-outlined">import_contacts</span>
+</div>
+<p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Books Lended</p>
+</div>
+<div class="flex items-baseline justify-between">
+<p class="text-4xl font-black text-slate-900">842</p>
+<p class="text-slate-500 text-xs font-bold flex items-center bg-slate-50 px-2 py-1 rounded">
+                             Active
+                        </p>
+</div>
+</div>
+<div class="bg-red-50/30 border border-red-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute right-0 top-0 h-full w-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined">priority_high</span>
+</div>
+<p class="text-xs text-secondary font-bold uppercase tracking-widest">Critical Overdue</p>
+</div>
+<div class="flex items-baseline justify-between">
+<p class="text-4xl font-black text-secondary">38</p>
+<p class="text-secondary text-xs font-bold flex items-center bg-white px-2 py-1 rounded border border-secondary/20">
+                            Attention Required
+                        </p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-2xl font-black text-slate-900 tracking-tight">Lending Management</h2>
+<p class="text-slate-500 text-sm">Monitor active and pending book returns.</p>
+</div>
+<button class="text-primary text-sm font-bold hover:underline underline-offset-4 decoration-2">View All Records</button>
+</div>
+<div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-blue-50/50 border-b border-blue-100">
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest">Book Title</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest">Borrower Name</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest">Lend Date</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest">Return Date</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest text-center">Status</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-primary/5 flex items-center justify-center border border-primary/10">
+<span class="material-symbols-outlined text-primary text-lg">auto_stories</span>
+</div>
+<span class="font-bold text-slate-800">The Great Gatsby</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600">John Doe</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 01, 2023</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 15, 2023</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-[10px] font-black bg-primary text-white tracking-widest">
+                                                LENT
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-primary/5 flex items-center justify-center border border-primary/10">
+<span class="material-symbols-outlined text-primary text-lg">auto_stories</span>
+</div>
+<span class="font-bold text-slate-800">1984</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600">Jane Smith</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Sep 20, 2023</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 04, 2023</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-700 border border-emerald-200 tracking-widest">
+                                                RETURNED
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-primary/5 flex items-center justify-center border border-primary/10">
+<span class="material-symbols-outlined text-primary text-lg">auto_stories</span>
+</div>
+<span class="font-bold text-slate-800">To Kill a Mockingbird</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600">Robert Brown</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 05, 2023</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 19, 2023</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-[10px] font-black bg-primary text-white tracking-widest">
+                                                LENT
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</td>
+</tr>
+<tr class="bg-red-50/20 hover:bg-red-50/40 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-secondary/10 flex items-center justify-center border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-lg">auto_stories</span>
+</div>
+<span class="font-bold text-slate-800">The Catcher in the Rye</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600">Emily Davis</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Sep 15, 2023</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Sep 29, 2023</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-[10px] font-black bg-secondary text-white tracking-widest">
+                                                OVERDUE
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-secondary hover:text-red-700 transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-primary/5 flex items-center justify-center border border-primary/10">
+<span class="material-symbols-outlined text-primary text-lg">auto_stories</span>
+</div>
+<span class="font-bold text-slate-800">Moby Dick</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-600">Michael Wilson</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 10, 2023</td>
+<td class="px-6 py-4 text-slate-500 font-medium">Oct 24, 2023</td>
+<td class="px-6 py-4">
+<div class="flex justify-center">
+<span class="px-3 py-1 rounded-full text-[10px] font-black bg-primary text-white tracking-widest">
+                                                LENT
+                                            </span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-slate-400 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
