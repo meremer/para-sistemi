@@ -189,7 +189,9 @@ async function loadAdminDashboard() {
         document.getElementById('totalLendingsCount').textContent = stats.summary.totalLendings;
         document.getElementById('activeLendingsCount').textContent = stats.summary.activeLendings;
         document.getElementById('returnedLendingsCount').textContent = stats.summary.returnedLendings;
+        document.getElementById('pendingRequestsCount').textContent = stats.summary.pendingRequests || 0;
 
+        updatePendingBadge();
         createBooksReadChart(stats.booksReadCount);
         createUserReadChart(stats.booksReadPerUser);
     } catch (err) {}
@@ -400,24 +402,76 @@ async function loadLendingTable() {
         tbody.innerHTML = lendings.map(lending => {
             dataStore.lendings[lending.id] = lending;
             const isOverdue = lending.status === 'active' && new Date(lending.returnDate) < new Date();
+
+            let statusBadge = '';
+            switch(lending.status) {
+                case 'returned': statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">İADE EDİLDİ</span>'; break;
+                case 'pending': statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">BEKLEMEDE</span>'; break;
+                case 'rejected': statusBadge = '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-800">REDDEDİLDİ</span>'; break;
+                default:
+                    statusBadge = isOverdue
+                        ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">GEÇ KALAN</span>'
+                        : '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">AKTİF</span>';
+            }
+
+            let actions = '-';
+            if (lending.status === 'active') {
+                actions = `<button onclick="openReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Al</button>`;
+            } else if (lending.status === 'pending') {
+                actions = `
+                    <div class="flex gap-2">
+                        <button onclick="approveRequest(${lending.id})" class="text-success hover:text-green-800 font-semibold text-sm">Onayla</button>
+                        <button onclick="rejectRequest(${lending.id})" class="text-secondary-red hover:text-red-800 font-semibold text-sm">Reddet</button>
+                    </div>
+                `;
+            }
+
             return `
                 <tr>
                     <td class="px-6 py-4 font-medium">${escapeHTML(lending.userName)}</td>
                     <td class="px-6 py-4">${escapeHTML(lending.bookTitle)}</td>
                     <td class="px-6 py-4">${escapeHTML(lending.lendDate)}</td>
                     <td class="px-6 py-4">${escapeHTML(lending.returnDate)}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${
-                            lending.status === 'returned' ? 'bg-green-100 text-green-800' : 
-                            (isOverdue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')
-                        }">${lending.status === 'returned' ? 'İADE EDİLDİ' : (isOverdue ? 'GEÇ KALAN' : 'AKTİF')}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        ${lending.status === 'active' ? `<button onclick="openReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Al</button>` : '-'}
-                    </td>
+                    <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4">${actions}</td>
                 </tr>
             `;
         }).join('');
+
+        updatePendingBadge();
+    } catch (err) {}
+}
+
+async function updatePendingBadge() {
+    if (currentUser.role !== 'admin') return;
+    try {
+        const { count } = await apiCall('/lendings/pending-count');
+        const badge = document.getElementById('pendingBadge');
+        if (count > 0) {
+            badge.textContent = count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch (err) {}
+}
+
+async function approveRequest(id) {
+    try {
+        await apiCall(`/lendings/${id}/approve`, 'PUT');
+        showGlobalMessage('İstek onaylandı');
+        loadLendingTable();
+        updatePendingBadge();
+    } catch (err) {}
+}
+
+async function rejectRequest(id) {
+    if (!confirm('Bu isteği reddetmek istediğinize emin misiniz?')) return;
+    try {
+        await apiCall(`/lendings/${id}/reject`, 'PUT');
+        showGlobalMessage('İstek reddedildi');
+        loadLendingTable();
+        updatePendingBadge();
     } catch (err) {}
 }
 
@@ -530,28 +584,45 @@ async function loadUserBrowse() {
     try {
         const search = document.getElementById('userBookSearch')?.value || '';
         const category = document.getElementById('userBookCategoryFilter')?.value || 'Hepsi';
-        const books = await apiCall(`/books?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`);
+        const [books, lendings] = await Promise.all([
+            apiCall(`/books?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`),
+            apiCall('/lendings')
+        ]);
         const tbody = document.getElementById('userBrowseList');
         
-        tbody.innerHTML = books.map(book => `
-            <tr>
-                <td class="px-6 py-4 font-medium">${escapeHTML(book.title)}</td>
-                <td class="px-6 py-4">${escapeHTML(book.author)}</td>
-                <td class="px-6 py-4">${escapeHTML(book.category)}</td>
-                <td class="px-6 py-4">
-                    ${book.availableCopies > 0 
-                        ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">${book.availableCopies} mevcut</span>`
-                        : `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">Mevcut değil</span>`
-                    }
-                </td>
-                <td class="px-6 py-4">
-                    ${book.availableCopies > 0 
-                        ? `<button onclick="userBorrowBook(${book.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İstek Et</button>`
-                        : `<button class="text-slate-400 cursor-not-allowed text-sm">Mevcut değil</button>`
-                    }
-                </td>
-            </tr>
-        `).join('');
+        const pendingOrActive = lendings.filter(l => l.status === 'pending' || l.status === 'active');
+
+        tbody.innerHTML = books.map(book => {
+            const isRequested = pendingOrActive.find(l => l.bookId === book.id);
+            let actionBtn = '';
+
+            if (isRequested) {
+                if (isRequested.status === 'pending') {
+                    actionBtn = `<span class="text-amber-600 font-semibold text-sm">İstek Gönderildi</span>`;
+                } else {
+                    actionBtn = `<span class="text-green-600 font-semibold text-sm">Zaten Sizde</span>`;
+                }
+            } else if (book.availableCopies > 0) {
+                actionBtn = `<button onclick="userBorrowBook(${book.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İstek Et</button>`;
+            } else {
+                actionBtn = `<button class="text-slate-400 cursor-not-allowed text-sm">Mevcut değil</button>`;
+            }
+
+            return `
+                <tr>
+                    <td class="px-6 py-4 font-medium">${escapeHTML(book.title)}</td>
+                    <td class="px-6 py-4">${escapeHTML(book.author)}</td>
+                    <td class="px-6 py-4">${escapeHTML(book.category)}</td>
+                    <td class="px-6 py-4">
+                        ${book.availableCopies > 0
+                            ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">${book.availableCopies} mevcut</span>`
+                            : `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">Mevcut değil</span>`
+                        }
+                    </td>
+                    <td class="px-6 py-4">${actionBtn}</td>
+                </tr>
+            `;
+        }).join('');
     } catch (err) {}
 }
 
@@ -562,40 +633,43 @@ async function userBorrowBook(bookId) {
     try {
         await apiCall('/lendings', 'POST', { userId: currentUser.id, bookId, lendDate: today, returnDate });
         loadUserBrowse();
-        showGlobalMessage('Kitap ödünç alındı (14 gün)');
+        showGlobalMessage('Kitap isteği iletildi, admin onayı bekleniyor');
     } catch (err) {}
 }
 
 async function loadUserBorrowedBooks() {
     try {
         const lendings = await apiCall('/lendings');
-        const active = lendings.filter(l => l.status === 'active');
+        const activeOrPending = lendings.filter(l => l.status === 'active' || l.status === 'pending');
         const tbody = document.getElementById('userBorrowedList');
 
-        const borrowed = active.length;
-        const read = active.filter(l => l.read).length;
-        const overdue = active.filter(l => new Date(l.returnDate) < new Date()).length;
+        const activeCount = lendings.filter(l => l.status === 'active').length;
+        const read = lendings.filter(l => l.status === 'returned' && l.read).length;
+        const overdue = lendings.filter(l => l.status === 'active' && new Date(l.returnDate) < new Date()).length;
 
-        document.getElementById('userBorrowedCount').textContent = borrowed;
+        document.getElementById('userBorrowedCount').textContent = activeCount;
         document.getElementById('userReadCount').textContent = read;
         document.getElementById('userOverdueCount').textContent = overdue;
 
         dataStore.lendings = {};
-        tbody.innerHTML = active.map(lending => {
+        tbody.innerHTML = activeOrPending.map(lending => {
             dataStore.lendings[lending.id] = lending;
-            const isOverdue = new Date(lending.returnDate) < new Date();
+            const isOverdue = lending.status === 'active' && new Date(lending.returnDate) < new Date();
             return `
                 <tr>
                     <td class="px-6 py-4 font-medium">${escapeHTML(lending.bookTitle)}</td>
                     <td class="px-6 py-4">${escapeHTML(lending.lendDate)}</td>
                     <td class="px-6 py-4">${escapeHTML(lending.returnDate)}</td>
                     <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
-                            ${isOverdue ? 'GEÇ KALAN' : 'AKTİF'}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${
+                            lending.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                            (isOverdue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')
+                        }">
+                            ${lending.status === 'pending' ? 'ONAY BEKLİYOR' : (isOverdue ? 'GEÇ KALAN' : 'AKTİF')}
                         </span>
                     </td>
                     <td class="px-6 py-4">
-                        <button onclick="openReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Et</button>
+                        ${lending.status === 'active' ? `<button onclick="openReturnModal(${lending.id})" class="text-primary hover:text-blue-800 font-semibold text-sm">İade Et</button>` : '-'}
                     </td>
                 </tr>
             `;
@@ -660,11 +734,16 @@ async function loadUserCalendar() {
         grid.innerHTML = calendar.map(entry => {
             const monthName = monthNames[entry.monthIndex - 1];
             return `
-                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                    <span class="text-xs font-bold text-primary uppercase tracking-wider mb-3 block">${monthName}</span>
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-primary transition-all group">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-bold text-primary uppercase tracking-wider">${monthName}</span>
+                        <button onclick="openEditCalendarModal(${entry.id}, ${entry.monthIndex})" aria-label="${monthName} Ayının Kitabını Düzenle" class="text-slate-400 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+                            <span class="material-symbols-outlined text-sm" aria-hidden="true">edit</span>
+                        </button>
+                    </div>
                     <div class="space-y-3">
                         <div class="p-3 bg-slate-50 rounded-lg">
-                            <h4 class="font-bold text-slate-900 text-sm">${entry.bookId ? escapeHTML(entry.bookTitle) : 'Yakında Açıklanacak'}</h4>
+                            <h4 class="font-bold text-slate-900 text-sm">${entry.bookId ? escapeHTML(entry.bookTitle) : '<span class="text-slate-400 font-normal">Kitap seçilmedi</span>'}</h4>
                             <p class="text-xs text-slate-500">${entry.bookId ? escapeHTML(entry.bookAuthor) : ''}</p>
                         </div>
                         ${entry.note ? `<p class="text-xs text-slate-600 italic">"${escapeHTML(entry.note)}"</p>` : ''}
@@ -711,7 +790,11 @@ async function updateCalendar() {
     try {
         await apiCall(`/calendar/${id}`, 'PUT', { bookId: bookId ? parseInt(bookId) : null, note });
         closeEditCalendarModal();
-        loadAdminCalendar();
+        if (currentUser.role === 'admin') {
+            loadAdminCalendar();
+        } else {
+            loadUserCalendar();
+        }
         showGlobalMessage('Takvim güncellendi');
     } catch (err) {}
 }
@@ -838,6 +921,7 @@ function initApp() {
             document.getElementById('adminDashboard').classList.remove('hidden');
             document.getElementById('adminUsername').textContent = currentUser.fullname;
             switchAdminTab('dashboard');
+            updatePendingBadge();
         } else {
             document.getElementById('userDashboard').classList.remove('hidden');
             document.getElementById('userUsername').textContent = currentUser.fullname;

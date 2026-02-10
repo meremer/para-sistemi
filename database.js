@@ -50,20 +50,15 @@ async function initializeDatabase() {
 
         CREATE TABLE IF NOT EXISTS calendar (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            monthIndex INTEGER UNIQUE NOT NULL,
+            userId INTEGER NOT NULL,
+            monthIndex INTEGER NOT NULL,
             bookId INTEGER,
             note TEXT,
-            FOREIGN KEY (bookId) REFERENCES books(id)
+            FOREIGN KEY (userId) REFERENCES users(id),
+            FOREIGN KEY (bookId) REFERENCES books(id),
+            UNIQUE(userId, monthIndex)
         );
     `);
-
-    // Initialize calendar with 12 months if empty
-    const calendarCount = await db.get('SELECT COUNT(*) as count FROM calendar');
-    if (calendarCount.count === 0) {
-        for (let i = 1; i <= 12; i++) {
-            await db.run('INSERT INTO calendar (monthIndex) VALUES (?)', [i]);
-        }
-    }
 
     // Check if admin exists, if not create default users
     const admin = await db.get('SELECT * FROM users WHERE username = ?', ['admin']);

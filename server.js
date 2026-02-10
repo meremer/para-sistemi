@@ -394,19 +394,82 @@ app.post('/api/lendings', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Bu kitabın mevcut kopyası yoktur' });
     }
 
+    // Default status: user requests are 'pending', admin assignments are 'active'
+    const status = req.user.role === 'admin' ? 'active' : 'pending';
+
     const result = await db.run(
       'INSERT INTO lendings (userId, bookId, lendDate, returnDate, status, read) VALUES (?, ?, ?, ?, ?, ?)',
-      [parseInt(userId), parseInt(bookId), lendDate, returnDate, 'active', 0]
+      [parseInt(userId), parseInt(bookId), lendDate, returnDate, status, 0]
     );
 
-    await db.run('UPDATE books SET availableCopies = availableCopies - 1 WHERE id = ?', [bookId]);
+    // Only decrement if active
+    if (status === 'active') {
+      await db.run('UPDATE books SET availableCopies = availableCopies - 1 WHERE id = ?', [bookId]);
+    }
 
     const newLending = await db.get('SELECT * FROM lendings WHERE id = ?', [result.lastID]);
 
     res.status(201).json({
-      message: 'Kitap başarıyla ödünç verildi',
+      message: status === 'active' ? 'Kitap başarıyla ödünç verildi' : 'Kitap isteği admin onayına gönderildi',
       lending: newLending
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/lendings/pending-count', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await db.get('SELECT COUNT(*) as count FROM lendings WHERE status = ?', ['pending']);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/lendings/:id/approve', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lending = await db.get('SELECT * FROM lendings WHERE id = ?', [id]);
+
+    if (!lending) {
+      return res.status(404).json({ error: 'İstek bulunamadı' });
+    }
+
+    if (lending.status !== 'pending') {
+      return res.status(400).json({ error: 'Bu istek zaten işlenmiş' });
+    }
+
+    const book = await db.get('SELECT * FROM books WHERE id = ?', [lending.bookId]);
+    if (!book || book.availableCopies <= 0) {
+      return res.status(400).json({ error: 'Bu kitabın mevcut kopyası yoktur' });
+    }
+
+    await db.run('UPDATE lendings SET status = ? WHERE id = ?', ['active', id]);
+    await db.run('UPDATE books SET availableCopies = availableCopies - 1 WHERE id = ?', [lending.bookId]);
+
+    res.json({ message: 'İstek onaylandı' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/lendings/:id/reject', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lending = await db.get('SELECT * FROM lendings WHERE id = ?', [id]);
+
+    if (!lending) {
+      return res.status(404).json({ error: 'İstek bulunamadı' });
+    }
+
+    if (lending.status !== 'pending') {
+      return res.status(400).json({ error: 'Bu istek zaten işlenmiş' });
+    }
+
+    await db.run('UPDATE lendings SET status = ? WHERE id = ?', ['rejected', id]);
+
+    res.json({ message: 'İstek reddedildi' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -458,6 +521,7 @@ app.get('/api/statistics', authenticateToken, requireAdmin, async (req, res) => 
     // Total statistics
     const totalLendings = lendings.length;
     const activeLendings = lendings.filter(l => l.status === 'active').length;
+    const pendingRequests = lendings.filter(l => l.status === 'pending').length;
     const returnedLendings = lendings.filter(l => l.status === 'returned').length;
     const booksRead = lendings.filter(l => l.read).length;
 
@@ -494,6 +558,7 @@ app.get('/api/statistics', authenticateToken, requireAdmin, async (req, res) => 
       summary: {
         totalLendings,
         activeLendings,
+        pendingRequests,
         returnedLendings,
         booksRead,
         overdueBooks,
@@ -567,23 +632,42 @@ app.put('/api/profile/password', authenticateToken, async (req, res) => {
 
 app.get('/api/calendar', authenticateToken, async (req, res) => {
   try {
+    // Check if user has calendar entries
+    const calendarCount = await db.get('SELECT COUNT(*) as count FROM calendar WHERE userId = ?', [req.user.id]);
+
+    if (calendarCount.count === 0) {
+      for (let i = 1; i <= 12; i++) {
+        await db.run('INSERT INTO calendar (userId, monthIndex) VALUES (?, ?)', [req.user.id, i]);
+      }
+    }
+
     const query = `
       SELECT c.*, b.title as bookTitle, b.author as bookAuthor
       FROM calendar c
       LEFT JOIN books b ON c.bookId = b.id
+      WHERE c.userId = ?
       ORDER BY c.monthIndex ASC
     `;
-    const calendar = await db.all(query);
+    const calendar = await db.all(query, [req.user.id]);
     res.json(calendar);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/calendar/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/calendar/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { bookId, note } = req.body;
+
+    const entry = await db.get('SELECT * FROM calendar WHERE id = ?', [id]);
+    if (!entry) {
+      return res.status(404).json({ error: 'Takvim kaydı bulunamadı' });
+    }
+
+    if (entry.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Bu takvim kaydını değiştirme yetkiniz yok' });
+    }
 
     await db.run(
       'UPDATE calendar SET bookId = ?, note = ? WHERE id = ?',
