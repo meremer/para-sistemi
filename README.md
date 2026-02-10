@@ -99,7 +99,9 @@ npm run dev
 
 ## 🚀 Dağıtım (Deployment)
 
-Uygulama SQLite kullandığı için ek bir veritabanı sunucusuna ihtiyaç duymaz. Herhangi bir Node.js destekleyen sunucuda (DigitalOcean, AWS, Heroku vb.) doğrudan çalıştırılabilir.
+Uygulama SQLite kullandığı için ek bir veritabanı sunucusuna ihtiyaç duymaz. Herhangi bir Node.js destekleyen sunucuda (DigitalOcean, AWS, Hetzner vb.) doğrudan çalıştırılabilir.
+
+Detaylı sunucu kurulumu ve canlıya alma rehberi için **[DEPLOYMENT.md](./DEPLOYMENT.md)** dosyasına göz atın.
 
 1. Dosyaları sunucuya yükleyin.
 2. `npm install` komutunu çalıştırın.
