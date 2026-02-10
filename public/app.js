@@ -638,8 +638,8 @@ async function loadAdminCalendar() {
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-primary transition-all group">
                     <div class="flex justify-between items-start mb-4">
                         <span class="text-xs font-bold text-primary uppercase tracking-wider">${monthName}</span>
-                        <button onclick="openEditCalendarModal(${entry.id}, ${entry.monthIndex})" class="text-slate-400 hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined text-sm">edit</span>
+                        <button onclick="openEditCalendarModal(${entry.id}, ${entry.monthIndex})" aria-label="${monthName} Ayının Kitabını Düzenle" class="text-slate-400 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+                            <span class="material-symbols-outlined text-sm" aria-hidden="true">edit</span>
                         </button>
                     </div>
                     <div class="space-y-2">
