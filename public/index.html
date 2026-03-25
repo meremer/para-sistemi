@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="tr" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argeta - Kütüphane Yönetim Sistemi</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f5f5f5",
+                        "secondary-red": "#dc2626",
+                        "background-light": "#0a0a0a",
+                        "success": "#16a34a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%) rotate(180deg); }
+            to { transform: translateY(0) rotate(180deg); }
+        }
+        .animate-slide-down {
+            animation: slideDown 1s ease-out forwards;
+        }
+        @keyframes waveDrift {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+
+        @keyframes flowLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes flowRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+        .animate-flow-left, .animate-flow-right { will-change: transform; backface-visibility: hidden; }
+        .animate-flow-left {
+            animation: flowLeft var(--duration) linear infinite;
+        }
+        .animate-flow-right {
+            animation: flowRight var(--duration) linear infinite;
+        }
+        .bg-text-row {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: inline-block;
+        }
+
+
+        .animate-wave {
+            animation: waveDrift 20s linear infinite;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slideUp 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-zinc-100">
+
+    <!-- Global Message -->
+    <div id="globalMessage" role="status" aria-live="polite" class="hidden fixed bottom-4 right-4 p-4 rounded-lg shadow-2xl z-[100] transition-all transform translate-y-20">
+        <p id="globalMessageContent"></p>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-50 overflow-y-auto">
+        <!-- Wavy Background -->
+        <div class="absolute inset-0 z-0 overflow-hidden">
+            <!-- Top Wave -->
+            <svg class="absolute top-0 w-full h-auto animate-slide-down" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                <path fill="#171717" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+
+                                                <!-- Dense Argeta Text Flow -->
+            <div id="bg-text-container" class="select-none absolute inset-0 flex flex-col justify-center pointer-events-none overflow-hidden z-[-1] opacity-60"></div>
+            <!-- Bottom Wave -->
+            <svg class="absolute bottom-0 w-full h-auto animate-slide-up" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                <path fill="#171717" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+        </div>
+
+        <div class="w-full max-w-md relative z-10">
+            <div class="bg-zinc-900/50 rounded-2xl shadow-2xl p-8 border border-zinc-800 backdrop-blur-md">
+                <div class="flex items-center justify-center mb-8">
+                    <div class="bg-zinc-100 p-3 rounded-xl shadow-lg">
+                        <span class="material-symbols-outlined text-4xl text-zinc-900" aria-hidden="true">menu_book</span>
+                    </div>
+                </div>
+                <h1 class="text-3xl font-black text-center mb-2 tracking-tighter text-zinc-100 uppercase">Argeta</h1>
+                <p class="text-center text-zinc-400 mb-8 font-medium">Kütüphane Yönetim Platformu</p>
+
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="loginUsername" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 ml-1">Kullanıcı Adı</label>
+                        <input type="text" id="loginUsername" placeholder="Kullanıcı adınız" class="w-full px-4 py-3 border-2 bg-zinc-800/50 border-zinc-700 rounded-xl focus:ring-0 focus:border-zinc-100 transition-all placeholder:text-zinc-500 text-zinc-100 font-medium" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 ml-1">Şifre</label>
+                        <input type="password" id="loginPassword" placeholder="Şifreniz" class="w-full px-4 py-3 border-2 bg-zinc-800/50 border-zinc-700 rounded-xl focus:ring-0 focus:border-zinc-100 transition-all placeholder:text-zinc-500 text-zinc-100 font-medium" required>
+                    </div>
+                    <button type="submit" id="loginBtn" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-black py-3.5 rounded-xl transition-all shadow-lg hover:shadow-black/20 hover:-translate-y-0.5 active:translate-y-0 uppercase tracking-widest text-sm">Giriş Yap</button>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-zinc-800">
+                    <p class="text-center text-sm text-zinc-400 mb-4">Demo Hesapları:</p>
+                    <div class="space-y-2 text-xs text-zinc-400">
+                        <p><strong>Admin:</strong> admin / 1234</p>
+                        <p><strong>Kullanıcı:</strong> user1 / 1234</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminDashboard" class="hidden h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 flex flex-col">
+            <div class="p-6 flex items-center gap-3 border-b border-zinc-800">
+                <div class="bg-zinc-800 p-2 rounded-lg">
+                    <span class="material-symbols-outlined text-zinc-100 text-3xl" aria-hidden="true">menu_book</span>
+                </div>
+                <div>
+                    <h1 id="adminSidebarTitle" class="text-lg font-bold leading-tight">Argeta Admin</h1>
+                    <p class="text-xs text-zinc-500">Yönetim Sistemi</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <button onclick="switchAdminTab('dashboard')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-zinc-950 font-bold transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
+                    <span>Kontrol Paneli</span>
+                </button>
+                <button onclick="switchAdminTab('books')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">book</span>
+                    <span>Kitaplar</span>
+                </button>
+                <button onclick="switchAdminTab('lending')" class="adminNavBtn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined" aria-hidden="true">handshake</span>
+                        <span>Ödünç İşlemleri</span>
+                    </div>
+                    <span id="pendingBadge" class="hidden bg-secondary-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+                <button onclick="switchAdminTab('members')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">group</span>
+                    <span>Kullanıcılar</span>
+                </button>
+                <button onclick="switchAdminTab('calendar')" class="adminNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                    <span>Kitap Takvimi</span>
+                </button>
+            </nav>
+            <div class="p-4 mt-auto border-t border-zinc-800">
+                <button onclick="openProfileModal()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400 mb-2">
+                    <span class="material-symbols-outlined" aria-hidden="true">person</span>
+                    <span class="text-sm font-medium">Profilim</span>
+                </button>
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400">
+                    <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                    <span class="text-sm font-medium">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 flex items-center justify-between px-8 border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md sticky top-0 z-10">
+                <h2 id="adminPageTitle" class="text-xl font-bold tracking-tight">Kontrol Paneli</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="openAddBookModal()" class="bg-zinc-100 hover:bg-white text-zinc-900 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl" aria-hidden="true">add</span>
+                        Kitap Ekle
+                    </button>
+                    <span id="adminUsername" class="text-sm font-medium text-zinc-400"></span>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">TOPLAM KİTAP</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">library_books</span>
+                            </div>
+                            <p id="totalBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">ÖDÜNÇ KİTAP</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">import_contacts</span>
+                            </div>
+                            <p id="lendedBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">MEVCUT</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">check_circle</span>
+                            </div>
+                            <p id="availableBooksCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-secondary-red/20 p-6 rounded-xl shadow-none ring-1 ring-secondary-red/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">GEÇ KALAN</p>
+                                <span class="material-symbols-outlined text-secondary-red" aria-hidden="true">warning</span>
+                            </div>
+                            <p id="overdueCount" class="text-3xl font-bold text-secondary-red">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4">📚 En Çok Okunan Kitaplar</h3>
+                            <div class="relative h-72">
+                                <canvas id="booksReadChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4">👥 En Çok Okuyan Kullanıcılar</h3>
+                            <div class="relative h-72">
+                                <canvas id="userReadChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lending Statistics -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">TOPLAM ÖDÜNÇ</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">trending_up</span>
+                            </div>
+                            <p id="totalLendingsCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">AKTİF ÖDÜNÇ</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">schedule</span>
+                            </div>
+                            <p id="activeLendingsCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-success/20 p-6 rounded-xl shadow-none ring-1 ring-success/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">GERİ ALINDI</p>
+                                <span class="material-symbols-outlined text-success" aria-hidden="true">check_circle</span>
+                            </div>
+                            <p id="returnedLendingsCount" class="text-3xl font-bold text-success">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-amber-500/20 p-6 rounded-xl shadow-none ring-1 ring-amber-500/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">BEKLEYEN İSTEK</p>
+                                <span class="material-symbols-outlined text-amber-500" aria-hidden="true">pending_actions</span>
+                            </div>
+                            <p id="pendingRequestsCount" class="text-3xl font-bold text-amber-500">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books Tab -->
+                <div id="booksTab" class="hidden space-y-6">
+                    <div class="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 border border-zinc-800 rounded-xl">
+                        <div class="flex-1 relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400" aria-hidden="true">search</span>
+                            <input type="text" id="bookSearch" oninput="loadBooksTable()" placeholder="Kitap adı, yazar veya ISBN ara..." aria-label="Kitap ara" class="w-full pl-10 pr-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div class="w-full md:w-48">
+                            <select id="bookCategoryFilter" onchange="loadBooksTable()" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option>Hepsi</option>
+                                <option>Kurgu</option>
+                                <option>Kurgusal Olmayan</option>
+                                <option>Bilim</option>
+                                <option>Tarih</option>
+                                <option>Biyografi</option>
+                                <option>Çocuk</option>
+                                <option>Genç Yetişkin</option>
+                                <option>Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Tüm Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Yazar</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Toplam</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Mevcut</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="booksList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lending Tab -->
+                <div id="lendingTab" class="hidden space-y-6">
+                    <div class="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 border border-zinc-800 rounded-xl">
+                        <div class="flex-1 relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400" aria-hidden="true">search</span>
+                            <input type="text" id="lendingSearch" oninput="loadLendingTable()" placeholder="Kitap adı veya kullanıcı ara..." aria-label="Ödünç işlemi ara" class="w-full pl-10 pr-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div class="w-full md:w-48">
+                            <select id="lendingStatusFilter" onchange="loadLendingTable()" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option>Hepsi</option>
+                                <option value="pending">Bekleyenler</option>
+                                <option value="active">Aktif</option>
+                                <option value="returned">İade Edildi</option>
+                                <option value="rejected">Reddedildi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Ödünç İşlemleri</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Kullanıcı</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kitap</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lendingList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Tab (Admin) -->
+                <div id="calendarTab" class="hidden space-y-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">12 Aylık Kitap Takvimi</h3>
+                            <p class="text-sm text-zinc-500">Her ay için bir "Ayın Kitabı" belirleyin.</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="adminCalendarGrid">
+                                <!-- Calendar cards will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Tab -->
+                <div id="membersTab" class="hidden space-y-6">
+                    <button onclick="openAddUserModal()" class="bg-zinc-100 hover:bg-white text-zinc-900 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl" aria-hidden="true">person_add</span>
+                        Kullanıcı Ekle
+                    </button>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Tüm Kullanıcılar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Ad Soyad</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kullanıcı Adı</th>
+                                        <th class="px-6 py-3 text-left font-semibold">E-posta</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kayıt Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="membersList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- USER DASHBOARD -->
+    <div id="userDashboard" class="hidden h-screen flex">
+        <!-- User Sidebar -->
+        <aside class="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 flex flex-col">
+            <div class="p-6 flex items-center gap-3 border-b border-zinc-800">
+                <div class="bg-zinc-100 p-2 rounded-lg">
+                    <span class="material-symbols-outlined text-zinc-100 text-3xl" aria-hidden="true">menu_book</span>
+                </div>
+                <div>
+                    <h1 id="userSidebarTitle" class="text-lg font-bold leading-tight">Argeta User</h1>
+                    <p class="text-xs text-zinc-500">Kişisel Kütüphane</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <button onclick="switchUserTab('browse')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary text-zinc-950 font-bold transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">explore</span>
+                    <span>Kitapları Gözat</span>
+                </button>
+                <button onclick="switchUserTab('borrowed')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">import_contacts</span>
+                    <span>Ödünç Aldıklarım</span>
+                </button>
+                <button onclick="switchUserTab('history')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                    <span>Geçmiş</span>
+                </button>
+                <button onclick="switchUserTab('calendar')" class="userNavBtn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-zinc-900 transition-colors">
+                    <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                    <span>Kitap Takvimi</span>
+                </button>
+            </nav>
+            <div class="p-4 mt-auto border-t border-zinc-800">
+                <button onclick="openProfileModal()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400 mb-2">
+                    <span class="material-symbols-outlined" aria-hidden="true">person</span>
+                    <span class="text-sm font-medium">Profilim</span>
+                </button>
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400">
+                    <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                    <span class="text-sm font-medium">Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- User Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 flex items-center justify-between px-8 border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md sticky top-0 z-10">
+                <h2 id="userPageTitle" class="text-xl font-bold tracking-tight">Kitapları Gözat</h2>
+                <span id="userUsername" class="text-sm font-medium text-zinc-400"></span>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- Browse Tab -->
+                <div id="browseTab" class="space-y-6">
+                    <div class="flex flex-col md:flex-row gap-4 bg-zinc-900 p-4 border border-zinc-800 rounded-xl">
+                        <div class="flex-1 relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400" aria-hidden="true">search</span>
+                            <input type="text" id="userBookSearch" oninput="loadUserBrowse()" placeholder="Kitap adı, yazar veya ISBN ara..." aria-label="Kitap ara" class="w-full pl-10 pr-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                        </div>
+                        <div class="w-full md:w-48">
+                            <select id="userBookCategoryFilter" onchange="loadUserBrowse()" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option>Hepsi</option>
+                                <option>Kurgu</option>
+                                <option>Kurgusal Olmayan</option>
+                                <option>Bilim</option>
+                                <option>Tarih</option>
+                                <option>Biyografi</option>
+                                <option>Çocuk</option>
+                                <option>Genç Yetişkin</option>
+                                <option>Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Kütüphanedeki Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Yazar</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Kategori</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Mevcut</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userBrowseList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Borrowed Tab -->
+                <div id="borrowedTab" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">ÖDÜNÇ ALINAN</p>
+                                <span class="material-symbols-outlined text-zinc-100" aria-hidden="true">import_contacts</span>
+                            </div>
+                            <p id="userBorrowedCount" class="text-3xl font-bold">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl shadow-none">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">OKUNMUŞ</p>
+                                <span class="material-symbols-outlined text-success" aria-hidden="true">check_circle</span>
+                            </div>
+                            <p id="userReadCount" class="text-3xl font-bold text-success">0</p>
+                        </div>
+                        <div class="bg-zinc-900 border border-secondary-red/20 p-6 rounded-xl shadow-none ring-1 ring-secondary-red/10">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-zinc-500 text-sm font-medium">GEÇ KALAN</p>
+                                <span class="material-symbols-outlined text-secondary-red" aria-hidden="true">warning</span>
+                            </div>
+                            <p id="userOverdueCount" class="text-3xl font-bold text-secondary-red">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Ödünç Aldığım Kitaplar</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                        <th class="px-6 py-3 text-left font-semibold">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userBorrowedList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <!-- Calendar Tab (User) -->
+                <div id="userCalendarTab" class="hidden space-y-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">12 Aylık Kitap Takvimi</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="userCalendarGrid">
+                                <!-- Calendar cards will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="historyTab" class="hidden space-y-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+                        <div class="px-6 py-4 border-b border-zinc-800">
+                            <h3 class="text-lg font-bold">Ödünç Geçmişi</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-zinc-800 border-b border-zinc-700 border-zinc-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Başlık</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Ödünç Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Dönüş Tarihi</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userHistoryList" class="divide-y divide-zinc-800 divide-zinc-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- ADD BOOK MODAL -->
+    <div id="addBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAddBookModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-2xl rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kitap Ekle</h3>
+                <button onclick="closeAddBookModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="addBookForm" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="bookTitle" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kitap Başlığı *</label>
+                        <input type="text" id="bookTitle" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="bookAuthor" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yazar *</label>
+                        <input type="text" id="bookAuthor" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="bookISBN" class="block text-sm font-semibold text-zinc-300 mb-1.5">ISBN *</label>
+                        <input type="text" id="bookISBN" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="bookCopies" class="block text-sm font-semibold text-zinc-300 mb-1.5">Toplam Kopya</label>
+                        <input type="number" id="bookCopies" min="1" value="1" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="bookCategory" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kategori</label>
+                        <select id="bookCategory" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                            <option>Kurgu</option>
+                            <option>Kurgusal Olmayan</option>
+                            <option>Bilim</option>
+                            <option>Tarih</option>
+                            <option>Biyografi</option>
+                            <option>Çocuk</option>
+                            <option>Genç Yetişkin</option>
+                            <option>Diğer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bookYear" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yayın Yılı</label>
+                        <input type="number" id="bookYear" value="2024" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeAddBookModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="addBook()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT BOOK MODAL -->
+    <div id="editBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEditBookModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-2xl rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kitabı Düzenle</h3>
+                <button onclick="closeEditBookModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="editBookForm" class="p-8 space-y-6">
+                <input type="hidden" id="editBookId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="editBookTitle" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kitap Başlığı *</label>
+                        <input type="text" id="editBookTitle" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="editBookAuthor" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yazar *</label>
+                        <input type="text" id="editBookAuthor" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="editBookISBN" class="block text-sm font-semibold text-zinc-300 mb-1.5">ISBN *</label>
+                        <input type="text" id="editBookISBN" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="editBookCopies" class="block text-sm font-semibold text-zinc-300 mb-1.5">Toplam Kopya</label>
+                        <input type="number" id="editBookCopies" min="1" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                    <div>
+                        <label for="editBookCategory" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kategori</label>
+                        <select id="editBookCategory" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                            <option>Kurgu</option>
+                            <option>Kurgusal Olmayan</option>
+                            <option>Bilim</option>
+                            <option>Tarih</option>
+                            <option>Biyografi</option>
+                            <option>Çocuk</option>
+                            <option>Genç Yetişkin</option>
+                            <option>Diğer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editBookYear" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yayın Yılı</label>
+                        <input type="number" id="editBookYear" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeEditBookModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="editBook()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Güncelle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD USER MODAL -->
+    <div id="addUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAddUserModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kullanıcı Ekle</h3>
+                <button onclick="closeAddUserModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="addUserForm" class="p-8 space-y-4">
+                <div>
+                    <label for="newUserName" class="block text-sm font-semibold text-zinc-300 mb-1.5">Ad Soyad *</label>
+                    <input type="text" id="newUserName" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+                <div>
+                    <label for="newUsername" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kullanıcı Adı *</label>
+                    <input type="text" id="newUsername" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+                <div>
+                    <label for="newUserEmail" class="block text-sm font-semibold text-zinc-300 mb-1.5">E-posta *</label>
+                    <input type="email" id="newUserEmail" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+                <div>
+                    <label for="newUserPassword" class="block text-sm font-semibold text-zinc-300 mb-1.5">Şifre *</label>
+                    <input type="password" id="newUserPassword" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeAddUserModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="addUser()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT USER MODAL -->
+    <div id="editUserModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEditUserModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kullanıcıyı Düzenle</h3>
+                <button onclick="closeEditUserModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="editUserForm" class="p-8 space-y-4">
+                <input type="hidden" id="editUserId">
+                <div>
+                    <label for="editUserName" class="block text-sm font-semibold text-zinc-300 mb-1.5">Ad Soyad *</label>
+                    <input type="text" id="editUserName" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+                <div>
+                    <label for="editUserEmail" class="block text-sm font-semibold text-zinc-300 mb-1.5">E-posta *</label>
+                    <input type="email" id="editUserEmail" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeEditUserModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="editUser()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Güncelle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEND BOOK MODAL -->
+    <div id="lendBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLendModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kitap Ödünç Ver</h3>
+                <button onclick="closeLendModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="lendBookForm" class="p-8 space-y-4">
+                <input type="hidden" id="lendBookId">
+                <div>
+                    <label for="lendUserId" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kullanıcı *</label>
+                    <select id="lendUserId" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg"></select>
+                </div>
+                <div>
+                    <label for="lendBookTitle" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kitap</label>
+                    <input type="text" id="lendBookTitle" readonly class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg bg-zinc-950">
+                </div>
+                <div>
+                    <label for="lendDate" class="block text-sm font-semibold text-zinc-300 mb-1.5">Ödünç Tarihi</label>
+                    <input type="date" id="lendDate" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+                <div>
+                    <label for="returnDate" class="block text-sm font-semibold text-zinc-300 mb-1.5">Dönüş Tarihi</label>
+                    <input type="date" id="returnDate" required class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeLendModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="submitLend()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Ödünç Ver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN BOOK MODAL -->
+    <div id="returnBookModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeReturnModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Kitap İade</h3>
+                <button onclick="closeReturnModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="returnBookForm" class="p-8 space-y-4">
+                <input type="hidden" id="returnLendingId">
+                <div>
+                    <label for="returnBookTitle" class="block text-sm font-semibold text-zinc-300 mb-1.5">Kitap</label>
+                    <input type="text" id="returnBookTitle" readonly class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg bg-zinc-950">
+                </div>
+                <div>
+                    <label for="readStatus" class="block text-sm font-semibold text-zinc-300 mb-1.5">Okundu mu?</label>
+                    <select id="readStatus" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                        <option value="false">Hayır</option>
+                        <option value="true">Evet</option>
+                    </select>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeReturnModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="submitReturn()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">İade Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALENDAR EDIT MODAL -->
+    <div id="editCalendarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeEditCalendarModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Ayın Kitabını Belirle</h3>
+                <button onclick="closeEditCalendarModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <form id="editCalendarForm" class="p-8 space-y-4">
+                <input type="hidden" id="editCalendarId">
+                <div>
+                    <label for="editCalendarBookId" class="block text-sm font-semibold text-zinc-300 mb-1.5" id="editCalendarMonthName">Ay</label>
+                    <select id="editCalendarBookId" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg"></select>
+                </div>
+                <div>
+                    <label for="editCalendarNote" class="block text-sm font-semibold text-zinc-300 mb-1.5">Not / Açıklama</label>
+                    <textarea id="editCalendarNote" rows="3" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg" placeholder="Neden bu kitap?"></textarea>
+                </div>
+            </form>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeEditCalendarModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="updateCalendar()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Güncelle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESET PASSWORD MODAL (Admin) -->
+    <div id="resetPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeResetPasswordModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-md rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Şifre Sıfırla</h3>
+                <button onclick="closeResetPasswordModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <div class="p-8 space-y-4">
+                <p class="text-sm text-zinc-400"><strong id="resetPasswordUsername"></strong> kullanıcısı için yeni şifre belirleyin.</p>
+                <input type="hidden" id="resetPasswordUserId">
+                <div>
+                    <label for="resetNewPassword" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yeni Şifre *</label>
+                    <input type="password" id="resetNewPassword" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-4 px-8 py-6 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeResetPasswordModal()" class="px-6 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800">İptal</button>
+                <button onclick="resetUserPassword()" class="px-8 py-2 rounded-lg bg-primary text-zinc-950 font-bold">Şifreyi Sıfırla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeProfileModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-xl rounded-xl shadow-2xl border border-zinc-700 overflow-y-auto max-h-[90vh] fade-in">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950">
+                <h3 class="text-xl font-bold">Profil Bilgileri</h3>
+                <button onclick="closeProfileModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <div class="p-8 space-y-8">
+                <!-- Update Info -->
+                <div class="space-y-4">
+                    <h4 class="font-bold border-b pb-2">Bilgileri Güncelle</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="profileFullname" class="block text-sm font-semibold text-zinc-300 mb-1.5">Ad Soyad</label>
+                            <input type="text" id="profileFullname" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="profileEmail" class="block text-sm font-semibold text-zinc-300 mb-1.5">E-posta</label>
+                            <input type="email" id="profileEmail" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                        </div>
+                    </div>
+                    <button onclick="updateProfile()" class="bg-primary text-zinc-950 px-6 py-2 rounded-lg font-bold text-sm">Kaydet</button>
+                </div>
+
+                <!-- Change Password -->
+                <div class="space-y-4">
+                    <h4 class="font-bold border-b pb-2">Şifre Değiştir</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="profileCurrentPassword" class="block text-sm font-semibold text-zinc-300 mb-1.5">Mevcut Şifre</label>
+                            <input type="password" id="profileCurrentPassword" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="profileNewPassword" class="block text-sm font-semibold text-zinc-300 mb-1.5">Yeni Şifre</label>
+                            <input type="password" id="profileNewPassword" class="w-full px-4 py-2 border bg-zinc-800 border-zinc-700 text-zinc-100 focus:border-zinc-100 focus:ring-0 rounded-lg">
+                        </div>
+                    </div>
+                    <button onclick="changePassword()" class="bg-slate-700 text-white px-6 py-2 rounded-lg font-bold text-sm">Şifreyi Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBER CALENDAR MODAL (Admin only) -->
+    <div id="memberCalendarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeMemberCalendarModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-4xl rounded-xl shadow-2xl border-2 border-primary fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950 sticky top-0 z-10">
+                <h3 class="text-xl font-bold" id="memberCalendarUserName">Kullanıcı Takvimi</h3>
+                <button onclick="closeMemberCalendarModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4" id="memberCalendarGrid">
+                    <!-- Member calendar entries will be injected here -->
+                </div>
+            </div>
+            <div class="flex justify-end p-4 bg-zinc-950 border-t border-zinc-800 sticky bottom-0">
+                <button onclick="closeMemberCalendarModal()" class="px-6 py-2 rounded-lg bg-slate-200 font-bold">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER STATISTICS MODAL (Shared with Admin view) -->
+    <div id="userStatsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeUserStatsModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-2xl rounded-xl shadow-2xl border-2 border-primary fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-8 py-5 bg-primary text-zinc-950 sticky top-0 z-10">
+                <div>
+                    <h3 class="text-xl font-bold" id="userStatsName">Kullanıcı</h3>
+                    <p class="text-sm text-zinc-400" id="userStatsUsername">@username</p>
+                </div>
+                <button onclick="closeUserStatsModal()" aria-label="Kapat" class="text-zinc-600 hover:text-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-zinc-800 border border-zinc-700 p-4 rounded-lg">
+                        <p class="text-sm text-zinc-400 font-medium">Ödünç Alınan</p>
+                        <p class="text-2xl font-bold text-zinc-100" id="userTotalBorrowed">0</p>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+                        <p class="text-sm text-zinc-400 font-medium">Okunan Kitaplar</p>
+                        <p class="text-2xl font-bold text-green-600" id="userBooksRead">0</p>
+                    </div>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+                    <h4 class="font-bold text-zinc-100 mb-4">📊 Okuma İstatistikleri</h4>
+                    <div class="relative h-64">
+                        <canvas id="userStatsChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-zinc-800 border-b border-zinc-700">
+                        <h4 class="font-bold text-zinc-100">📚 İşlem Geçmişi</h4>
+                    </div>
+                    <div class="overflow-x-auto max-h-80">
+                        <table class="w-full text-sm">
+                            <thead class="bg-zinc-800 border-b border-zinc-700 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Kitap</th>
+                                    <th class="px-4 py-2 text-left">Durum</th>
+                                    <th class="px-4 py-2 text-left">Okunmuş</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userBorrowedBooksTable" class="divide-y divide-zinc-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end p-4 bg-zinc-950 border-t border-zinc-800">
+                <button onclick="closeUserStatsModal()" class="px-6 py-2 rounded-lg bg-slate-200 font-bold">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+
+
+
+    <script>
+        function generateBgText() {
+            const container = document.getElementById('bg-text-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const groupCount = 6;
+            const rowsPerGroup = 5;
+            const branding = ["ARGETA", "ARGETA", "KÜTÜPHANE"];
+            const chars = ["X", "Y", "Z", "0", "1", "7", "A", "B", "C"];
+
+            const fragment = document.createDocumentFragment();
+
+            for (let g = 0; g < groupCount; g++) {
+                const isLeft = g % 2 === 0;
+                const duration = 80 + Math.random() * 120;
+                // Slightly less transparent (increased from 0.04-0.09 to 0.08-0.16)
+                const opacity = 0.08 + (Math.random() * 0.08);
+                const delay = -Math.random() * duration;
+
+                const group = document.createElement('div');
+                group.className = 'flex flex-col overflow-hidden py-2';
+                group.style.opacity = opacity;
+                group.style.setProperty('--duration', `${duration}s`);
+
+                const animated = document.createElement('div');
+                animated.className = `whitespace-nowrap ${isLeft ? 'animate-flow-left' : 'animate-flow-right'}`;
+                animated.style.animationDelay = `${delay}s`;
+                animated.style.willChange = 'transform';
+
+                for (let r = 0; r < rowsPerGroup; r++) {
+                    const row = document.createElement('div');
+                    const fontSize = 10 + Math.random() * 5;
+                    row.style.fontSize = `${fontSize}px`;
+                    row.style.lineHeight = '3.5'; // Even more padding
+                    row.style.letterSpacing = '0.5em';
+                    row.className = 'font-black text-white uppercase opacity-80';
+
+                    let text = "";
+                    for (let j = 0; j < 50; j++) {
+                        const word = Math.random() > 0.4 ? branding[Math.floor(Math.random()*branding.length)] : chars[Math.floor(Math.random()*chars.length)];
+                        text += word + " ";
+                    }
+                    row.innerText = text + text;
+                    animated.appendChild(row);
+                }
+                group.appendChild(animated);
+                fragment.appendChild(group);
+            }
+            container.appendChild(fragment);
+        }
+
+        if (document.getElementById('loginPage')) {
+            generateBgText();
+        }
+    </script>
+
+
+</body>
+</html>
