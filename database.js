@@ -99,14 +99,23 @@ async function initializeDatabase() {
     // Check if admin exists, if not create default users
     const admin = await db.get('SELECT * FROM users WHERE username = ?', ['admin']);
     if (!admin) {
+        const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || '1234';
+        const defaultUserPassword = process.env.DEFAULT_USER_PASSWORD || '1234';
+
+        if (!process.env.DEFAULT_ADMIN_PASSWORD) {
+            console.warn('⚠️  WARNING: Using default admin password "1234". Set DEFAULT_ADMIN_PASSWORD environment variable for production!');
+        }
+
         await db.run(
             'INSERT INTO users (username, password, fullname, email, role) VALUES (?, ?, ?, ?, ?)',
-            ['admin', bcrypt.hashSync('1234', 10), 'Admin Kullanıcı', 'admin@library.com', 'admin']
+            ['admin', bcrypt.hashSync(defaultAdminPassword, 10), 'Admin Kullanıcı', 'admin@library.com', 'admin']
         );
         await db.run(
             'INSERT INTO users (username, password, fullname, email, role) VALUES (?, ?, ?, ?, ?)',
-            ['user1', bcrypt.hashSync('1234', 10), 'Demo Kullanıcı', 'user1@library.com', 'user']
+            ['user1', bcrypt.hashSync(defaultUserPassword, 10), 'Demo Kullanıcı', 'user1@library.com', 'user']
         );
+
+        console.log('✓ Default users created. Admin username: admin');
     }
 
     // Check if books exist, if not create default books

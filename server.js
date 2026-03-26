@@ -29,7 +29,8 @@ app.use(helmet({
     }
 }));
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : 'http://localhost:3000'
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  credentials: true
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -43,10 +44,11 @@ if (!fs.existsSync(dataDir)) {
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET || JWT_SECRET === 'your-secret-key-change-in-production') {
-  console.warn('WARNING: JWT_SECRET is not set or using default value. Please set a strong JWT_SECRET environment variable for production.');
+if (!JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET environment variable is not set. Server cannot start securely.');
+  process.exit(1);
 }
-const SECRET = JWT_SECRET || 'your-secret-key-change-in-production';
+const SECRET = JWT_SECRET;
 
 // Rate Limiting
 const apiLimiter = rateLimit({
@@ -228,22 +230,29 @@ app.put('/api/books/:id', authenticateToken, requireAdmin, async (req, res) => {
 app.delete('/api/books/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Check if there are active lendings
     const activeLending = await db.get('SELECT id FROM lendings WHERE bookId = ? AND status = ?', [id, 'active']);
     if (activeLending) {
       return res.status(400).json({ error: 'Bu kitap şu an ödünçte olduğu için silinemez' });
     }
 
-    await db.run('DELETE FROM lendings WHERE bookId = ?', [id]);
+    // Check if there are pending lendings
+    const pendingLending = await db.get('SELECT id FROM lendings WHERE bookId = ? AND status = ?', [id, 'pending']);
+    if (pendingLending) {
+      return res.status(400).json({ error: 'Bu kitap için bekleyen istekler olduğu için silinemez' });
+    }
+
+    // Don't delete historical lending records - they are important for statistics
     const result = await db.run('DELETE FROM books WHERE id = ?', [id]);
-    
+
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Kitap bulunamadı' });
     }
 
     res.json({ message: 'Kitap başarıyla silindi' });
   } catch (err) {
+    console.error('Delete book error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -332,7 +341,13 @@ app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) =
       return res.status(400).json({ error: 'Bu kullanıcının iade etmediği kitaplar olduğu için silinemez' });
     }
 
-    await db.run('DELETE FROM lendings WHERE userId = ?', [id]);
+    // Check for pending lendings
+    const pendingLending = await db.get('SELECT id FROM lendings WHERE userId = ? AND status = ?', [id, 'pending']);
+    if (pendingLending) {
+      return res.status(400).json({ error: 'Bu kullanıcının bekleyen istekleri olduğu için silinemez' });
+    }
+
+    // Don't delete historical lending records - they are important for statistics
     const result = await db.run('DELETE FROM users WHERE id = ?', [id]);
 
     if (result.changes === 0) {
@@ -341,6 +356,7 @@ app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) =
 
     res.json({ message: 'Kullanıcı başarıyla silindi' });
   } catch (err) {
+    console.error('Delete user error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -517,22 +533,35 @@ app.put('/api/lendings/:id/return', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Yetkiniz yok' });
     }
 
+    if (lending.status !== 'active') {
+      return res.status(400).json({ error: 'Bu kitap zaten iade edilmiş' });
+    }
+
     const actualReturnDate = new Date().toISOString().split('T')[0];
-    
-    await db.run(
-      'UPDATE lendings SET status = ?, actualReturnDate = ?, read = ? WHERE id = ?',
-      ['returned', actualReturnDate, read ? 1 : 0, id]
-    );
 
-    await db.run('UPDATE books SET availableCopies = availableCopies + 1 WHERE id = ?', [lending.bookId]);
+    await db.run('BEGIN TRANSACTION');
+    try {
+      await db.run(
+        'UPDATE lendings SET status = ?, actualReturnDate = ?, read = ? WHERE id = ?',
+        ['returned', actualReturnDate, read ? 1 : 0, id]
+      );
 
-    const updatedLending = await db.get('SELECT * FROM lendings WHERE id = ?', [id]);
+      await db.run('UPDATE books SET availableCopies = availableCopies + 1 WHERE id = ?', [lending.bookId]);
 
-    res.json({
-      message: 'Kitap başarıyla iade alındı',
-      lending: updatedLending
-    });
+      await db.run('COMMIT');
+
+      const updatedLending = await db.get('SELECT * FROM lendings WHERE id = ?', [id]);
+
+      res.json({
+        message: 'Kitap başarıyla iade alındı',
+        lending: updatedLending
+      });
+    } catch (e) {
+      await db.run('ROLLBACK');
+      throw e;
+    }
   } catch (err) {
+    console.error('Return lending error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -663,8 +692,19 @@ app.get('/api/calendar', authenticateToken, async (req, res) => {
     const calendarCount = await db.get('SELECT COUNT(*) as count FROM calendar WHERE userId = ?', [req.user.id]);
 
     if (calendarCount.count === 0) {
-      for (let i = 1; i <= 12; i++) {
-        await db.run('INSERT INTO calendar (userId, monthIndex) VALUES (?, ?)', [req.user.id, i]);
+      await db.run('BEGIN TRANSACTION');
+      try {
+        // Double-check after acquiring transaction lock
+        const recheck = await db.get('SELECT COUNT(*) as count FROM calendar WHERE userId = ?', [req.user.id]);
+        if (recheck.count === 0) {
+          for (let i = 1; i <= 12; i++) {
+            await db.run('INSERT INTO calendar (userId, monthIndex) VALUES (?, ?)', [req.user.id, i]);
+          }
+        }
+        await db.run('COMMIT');
+      } catch (e) {
+        await db.run('ROLLBACK');
+        throw e;
       }
     }
 
@@ -678,6 +718,7 @@ app.get('/api/calendar', authenticateToken, async (req, res) => {
     const calendar = await db.all(query, [req.user.id]);
     res.json(calendar);
   } catch (err) {
+    console.error('Calendar fetch error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -689,8 +730,19 @@ app.get('/api/calendar/:userId', authenticateToken, requireAdmin, async (req, re
     const calendarCount = await db.get('SELECT COUNT(*) as count FROM calendar WHERE userId = ?', [userId]);
 
     if (calendarCount.count === 0) {
-      for (let i = 1; i <= 12; i++) {
-        await db.run('INSERT INTO calendar (userId, monthIndex) VALUES (?, ?)', [userId, i]);
+      await db.run('BEGIN TRANSACTION');
+      try {
+        // Double-check after acquiring transaction lock
+        const recheck = await db.get('SELECT COUNT(*) as count FROM calendar WHERE userId = ?', [userId]);
+        if (recheck.count === 0) {
+          for (let i = 1; i <= 12; i++) {
+            await db.run('INSERT INTO calendar (userId, monthIndex) VALUES (?, ?)', [userId, i]);
+          }
+        }
+        await db.run('COMMIT');
+      } catch (e) {
+        await db.run('ROLLBACK');
+        throw e;
       }
     }
 
@@ -704,6 +756,7 @@ app.get('/api/calendar/:userId', authenticateToken, requireAdmin, async (req, re
     const calendar = await db.all(query, [userId]);
     res.json(calendar);
   } catch (err) {
+    console.error('Admin calendar fetch error:', err);
     res.status(500).json({ error: err.message });
   }
 });

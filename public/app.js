@@ -208,8 +208,9 @@ async function loadAdminDashboard() {
         updatePendingBadge();
         createBooksReadChart(stats.booksReadCount);
         createUserReadChart(stats.booksReadPerUser);
-    } catch (err) {}
-}
+    } catch (err) {
+        console.error('Failed to load admin dashboard:', err);
+    }
 
 function createBooksReadChart(booksReadData) {
     const ctx = document.getElementById('booksReadChart');
@@ -328,7 +329,9 @@ async function addBook() {
         closeAddBookModal();
         loadBooksTable();
         showGlobalMessage('Kitap başarıyla eklendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to add book:', err);
+    }
 }
 
 async function editBook() {
@@ -352,7 +355,9 @@ async function editBook() {
         closeEditBookModal();
         loadBooksTable();
         showGlobalMessage('Kitap başarıyla güncellendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to edit book:', err);
+    }
 }
 
 async function deleteBook(id) {
@@ -361,7 +366,9 @@ async function deleteBook(id) {
         await apiCall(`/books/${id}`, 'DELETE');
         loadBooksTable();
         showGlobalMessage('Kitap silindi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to delete book:', err);
+    }
 }
 
 // ==================== USER MANAGEMENT ====================
@@ -388,7 +395,9 @@ async function loadMembersTable() {
                 </tr>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load members table:', err);
+    }
 }
 
 let currentEditingCalendarUserId = null;
@@ -400,7 +409,9 @@ async function openMemberCalendarModal(userId) {
         document.getElementById('memberCalendarUserName').textContent = user.fullname + ' - Kitap Takvimi';
         document.getElementById('memberCalendarModal').classList.remove('hidden');
         await loadMemberCalendar(userId);
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to open member calendar modal:', err);
+    }
 }
 
 function closeMemberCalendarModal() {
@@ -430,7 +441,9 @@ async function loadMemberCalendar(userId) {
                 </div>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load member calendar:', err);
+    }
 }
 
 async function addUser() {
@@ -444,7 +457,9 @@ async function addUser() {
         closeAddUserModal();
         loadMembersTable();
         showGlobalMessage('Kullanıcı başarıyla eklendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to add user:', err);
+    }
 }
 
 async function editUser() {
@@ -457,7 +472,9 @@ async function editUser() {
         closeEditUserModal();
         loadMembersTable();
         showGlobalMessage('Kullanıcı güncellendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to edit user:', err);
+    }
 }
 
 async function deleteUser(id) {
@@ -466,7 +483,9 @@ async function deleteUser(id) {
         await apiCall(`/users/${id}`, 'DELETE');
         loadMembersTable();
         showGlobalMessage('Kullanıcı silindi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to delete user:', err);
+    }
 }
 
 async function resetUserPassword() {
@@ -478,7 +497,9 @@ async function resetUserPassword() {
         await apiCall(`/users/${id}/reset-password`, 'POST', { newPassword });
         closeResetPasswordModal();
         showGlobalMessage('Şifre sıfırlandı');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to reset password:', err);
+    }
 }
 
 // ==================== LENDING MANAGEMENT ====================
@@ -530,7 +551,9 @@ async function loadLendingTable() {
         }).join('');
 
         updatePendingBadge();
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load lending table:', err);
+    }
 }
 
 async function updatePendingBadge() {
@@ -544,7 +567,9 @@ async function updatePendingBadge() {
         } else {
             badge.classList.add('hidden');
         }
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to update pending badge:', err);
+    }
 }
 
 async function approveRequest(id) {
@@ -553,7 +578,9 @@ async function approveRequest(id) {
         showGlobalMessage('İstek onaylandı');
         loadLendingTable();
         updatePendingBadge();
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to approve request:', err);
+    }
 }
 
 async function rejectRequest(id) {
@@ -563,7 +590,9 @@ async function rejectRequest(id) {
         showGlobalMessage('İstek reddedildi');
         loadLendingTable();
         updatePendingBadge();
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to reject request:', err);
+    }
 }
 
 async function submitLend() {
@@ -577,7 +606,9 @@ async function submitLend() {
         closeLendModal();
         loadLendingTable();
         showGlobalMessage('Kitap ödünç verildi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to submit lend:', err);
+    }
 }
 
 async function submitReturn() {
@@ -595,7 +626,9 @@ async function submitReturn() {
             loadUserHistory();
         }
         showGlobalMessage('Kitap iade alındı');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to submit return:', err);
+    }
 }
 
 async function openUserStatsModal(userId) {
@@ -605,7 +638,9 @@ async function openUserStatsModal(userId) {
         document.getElementById('userStatsUsername').textContent = '@' + user.username;
         document.getElementById('userStatsModal').classList.remove('hidden');
         await loadUserStatistics(userId);
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to open user stats modal:', err);
+    }
 }
 
 function closeUserStatsModal() {
@@ -669,10 +704,6 @@ function createUserDetailChart(userStats, userLendings) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                x: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } },
-                y: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } }
-            },
             plugins: {
                 legend: { labels: { color: '#f5f5f5' } }
             }
@@ -722,10 +753,10 @@ async function loadUserBrowse() {
                 </tr>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load user browse:', err);
+    }
 }
-
-async function userBorrowBook(bookId) {
     const today = new Date().toISOString().split('T')[0];
     const returnDate = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
     
@@ -733,7 +764,9 @@ async function userBorrowBook(bookId) {
         await apiCall('/lendings', 'POST', { userId: currentUser.id, bookId, lendDate: today, returnDate });
         loadUserBrowse();
         showGlobalMessage('Kitap isteği iletildi, admin onayı bekleniyor');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to borrow book:', err);
+    }
 }
 
 async function loadUserBorrowedBooks() {
@@ -773,10 +806,10 @@ async function loadUserBorrowedBooks() {
                 </tr>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load user borrowed books:', err);
+    }
 }
-
-async function loadUserHistory() {
     try {
         const lendings = await apiCall('/lendings');
         const returned = lendings.filter(l => l.status === 'returned');
@@ -794,7 +827,9 @@ async function loadUserHistory() {
                 </td>
             </tr>
         `).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load user history:', err);
+    }
 }
 
 // ==================== CALENDAR MANAGEMENT ====================
@@ -822,10 +857,10 @@ async function loadAdminCalendar() {
                 </div>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load admin calendar:', err);
+    }
 }
-
-async function loadUserCalendar() {
     try {
         const calendar = await apiCall('/calendar');
         const grid = document.getElementById('userCalendarGrid');
@@ -847,10 +882,10 @@ async function loadUserCalendar() {
                 </div>
             `;
         }).join('');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to load user calendar:', err);
+    }
 }
-
-async function openEditCalendarModal(id, monthIndex, userId = null) {
     try {
         const endpoint = userId ? `/calendar/${userId}` : '/calendar';
         const calendar = await apiCall(endpoint);
@@ -869,10 +904,12 @@ async function openEditCalendarModal(id, monthIndex, userId = null) {
             if (b.id === entry.bookId) opt.selected = true;
             select.appendChild(opt);
         });
-        
+
         document.getElementById('editCalendarNote').value = entry.note || '';
         document.getElementById('editCalendarModal').classList.remove('hidden');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to open edit calendar modal:', err);
+    }
 }
 
 function closeEditCalendarModal() {
@@ -897,7 +934,9 @@ async function updateCalendar() {
             loadUserCalendar();
         }
         showGlobalMessage('Takvim güncellendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to update calendar:', err);
+    }
 }
 
 // ==================== PROFILE ====================
@@ -907,7 +946,9 @@ async function openProfileModal() {
         document.getElementById('profileFullname').value = user.fullname;
         document.getElementById('profileEmail').value = user.email;
         document.getElementById('profileModal').classList.remove('hidden');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to open profile modal:', err);
+    }
 }
 
 async function updateProfile() {
@@ -920,10 +961,12 @@ async function updateProfile() {
         
         const usernameEl = document.getElementById(currentUser.role + 'Username');
         if (usernameEl) usernameEl.textContent = fullname;
-        
+
         closeProfileModal();
         showGlobalMessage('Profil güncellendi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to update profile:', err);
+    }
 }
 
 async function changePassword() {
@@ -936,7 +979,9 @@ async function changePassword() {
         document.getElementById('profileCurrentPassword').value = '';
         document.getElementById('profileNewPassword').value = '';
         showGlobalMessage('Şifre değiştirildi');
-    } catch (err) {}
+    } catch (err) {
+        console.error('Failed to change password:', err);
+    }
 }
 
 // ==================== MODALS ====================
