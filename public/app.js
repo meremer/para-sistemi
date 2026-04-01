@@ -144,6 +144,18 @@ function switchAdminTab(tab) {
     const titles = { dashboard: 'Kontrol Paneli', books: 'Kitaplar', lending: 'Ödünç İşlemleri', members: 'Kullanıcılar', calendar: 'Kitap Takvimi' };
     document.getElementById('adminPageTitle').textContent = titles[tab] || 'Kontrol Paneli';
 
+    // Show/hide export/import buttons only on books tab
+    const bookActionButtons = document.getElementById('bookActionButtons');
+    if (bookActionButtons) {
+        if (tab === 'books') {
+            bookActionButtons.classList.remove('hidden');
+            bookActionButtons.classList.add('flex');
+        } else {
+            bookActionButtons.classList.add('hidden');
+            bookActionButtons.classList.remove('flex');
+        }
+    }
+
     if (tab === 'dashboard') loadAdminDashboard();
     if (tab === 'books') loadBooksTable();
     if (tab === 'lending') loadLendingTable();
@@ -1001,6 +1013,162 @@ function openEditBookModal(bookId) {
     document.getElementById('editBookModal').classList.remove('hidden');
 }
 function closeEditBookModal() { document.getElementById('editBookModal').classList.add('hidden'); }
+
+// ==================== EXPORT/IMPORT FUNCTIONS ====================
+async function exportBooksExcel() {
+    try {
+        const response = await fetch(`${API_URL}/books/export/excel`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Export failed');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kitaplar.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showGlobalMessage('Excel dosyası indirildi', 'success');
+    } catch (err) {
+        showGlobalMessage('Excel export hatası: ' + err.message, 'error');
+    }
+}
+
+async function exportBooksJSON() {
+    try {
+        const response = await fetch(`${API_URL}/books/export/json`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Export failed');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kitaplar.json';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showGlobalMessage('JSON dosyası indirildi', 'success');
+    } catch (err) {
+        showGlobalMessage('JSON export hatası: ' + err.message, 'error');
+    }
+}
+
+async function downloadTemplate() {
+    try {
+        const response = await fetch(`${API_URL}/books/template`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Template download failed');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kitap-sablonu.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showGlobalMessage('Şablon dosyası indirildi', 'success');
+    } catch (err) {
+        showGlobalMessage('Şablon indirme hatası: ' + err.message, 'error');
+    }
+}
+
+function openImportModal() {
+    document.getElementById('importFile').value = '';
+    document.getElementById('importPreview').classList.add('hidden');
+    document.getElementById('importModal').classList.remove('hidden');
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').classList.add('hidden');
+}
+
+let importData = null;
+
+function previewImport() {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            if (jsonData.length < 2) {
+                showGlobalMessage('Dosya boş veya geçersiz', 'error');
+                return;
+            }
+
+            const headers = jsonData[0];
+            const rows = jsonData.slice(1).filter(row => row.length > 0);
+
+            importData = rows.map(row => ({
+                title: row[0],
+                author: row[1],
+                isbn: row[2],
+                totalCopies: row[3] || 1,
+                category: row[4] || 'Diğer',
+                year: row[5] || new Date().getFullYear()
+            }));
+
+            const previewText = `${rows.length} kitap bulundu:\n\n` +
+                rows.slice(0, 5).map(row => `• ${row[0]} - ${row[1]}`).join('\n') +
+                (rows.length > 5 ? `\n... ve ${rows.length - 5} kitap daha` : '');
+
+            document.getElementById('importPreviewText').textContent = previewText;
+            document.getElementById('importPreview').classList.remove('hidden');
+        } catch (err) {
+            showGlobalMessage('Dosya okuma hatası: ' + err.message, 'error');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+async function importBooks() {
+    if (!importData || importData.length === 0) {
+        showGlobalMessage('Lütfen önce bir dosya seçin', 'error');
+        return;
+    }
+
+    try {
+        const result = await apiCall('/books/import', 'POST', { data: importData });
+        showGlobalMessage(result.message, 'success');
+
+        if (result.errors && result.errors.length > 0) {
+            console.log('Import errors:', result.errors);
+        }
+
+        closeImportModal();
+        loadBooksTable();
+    } catch (err) {
+        showGlobalMessage('İçe aktarma hatası: ' + err.message, 'error');
+    }
+}
 
 function openAddUserModal() { document.getElementById('addUserModal').classList.remove('hidden'); }
 function closeAddUserModal() { document.getElementById('addUserModal').classList.add('hidden'); }

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -7,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
+const XLSX = require('xlsx');
 const { initializeDatabase } = require('./database');
 
 const app = express();
@@ -253,6 +255,133 @@ app.delete('/api/books/:id', authenticateToken, requireAdmin, async (req, res) =
     res.json({ message: 'Kitap başarıyla silindi' });
   } catch (err) {
     console.error('Delete book error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Export books as Excel
+app.get('/api/books/export/excel', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const books = await db.all('SELECT * FROM books ORDER BY createdAt DESC');
+
+    const worksheetData = [
+      ['ID', 'Başlık', 'Yazar', 'ISBN', 'Toplam Kopya', 'Mevcut Kopya', 'Kategori', 'Yıl', 'Oluşturulma Tarihi']
+    ];
+
+    books.forEach(book => {
+      worksheetData.push([
+        book.id,
+        book.title,
+        book.author,
+        book.isbn,
+        book.totalCopies,
+        book.availableCopies,
+        book.category || '',
+        book.year || '',
+        book.createdAt
+      ]);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Kitaplar');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename=kitaplar.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Export Excel error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Export books as JSON
+app.get('/api/books/export/json', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const books = await db.all('SELECT * FROM books ORDER BY createdAt DESC');
+
+    res.setHeader('Content-Disposition', 'attachment; filename=kitaplar.json');
+    res.setHeader('Content-Type', 'application/json');
+    res.json(books);
+  } catch (err) {
+    console.error('Export JSON error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Download Excel template
+app.get('/api/books/template', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const worksheetData = [
+      ['Başlık', 'Yazar', 'ISBN', 'Toplam Kopya', 'Kategori', 'Yıl'],
+      ['Örnek Kitap', 'Örnek Yazar', '978-1234567890', '5', 'Kurgu', '2024']
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Kitaplar');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename=kitap-sablonu.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (err) {
+    console.error('Template download error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Import books from Excel
+app.post('/api/books/import', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (!data || !Array.isArray(data)) {
+      return res.status(400).json({ error: 'Geçersiz veri formatı' });
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+
+      // Skip header row or empty rows
+      if (i === 0 || !row.title || !row.author || !row.isbn) {
+        continue;
+      }
+
+      try {
+        const totalCopies = parseInt(row.totalCopies) || 1;
+        const year = parseInt(row.year) || new Date().getFullYear();
+
+        await db.run(
+          'INSERT INTO books (title, author, isbn, totalCopies, availableCopies, category, year) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [row.title, row.author, row.isbn, totalCopies, totalCopies, row.category || 'Diğer', year]
+        );
+        successCount++;
+      } catch (err) {
+        errorCount++;
+        if (err.message.includes('UNIQUE constraint failed')) {
+          errors.push(`Satır ${i + 1}: ISBN ${row.isbn} zaten mevcut`);
+        } else {
+          errors.push(`Satır ${i + 1}: ${err.message}`);
+        }
+      }
+    }
+
+    res.json({
+      message: `${successCount} kitap başarıyla içe aktarıldı`,
+      successCount,
+      errorCount,
+      errors: errors.slice(0, 10)
+    });
+  } catch (err) {
+    console.error('Import error:', err);
     res.status(500).json({ error: err.message });
   }
 });
