@@ -394,6 +394,13 @@ async function importBooksFromExcel(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Check if XLSX library is loaded
+    if (typeof XLSX === 'undefined') {
+        showGlobalMessage('Excel kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.', 'error');
+        event.target.value = '';
+        return;
+    }
+
     try {
         const reader = new FileReader();
         reader.onload = async function(e) {
