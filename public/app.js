@@ -362,6 +362,91 @@ async function deleteBook(id) {
     } catch (err) {}
 }
 
+async function exportBooksToExcel() {
+    try {
+        const response = await fetch(`${API_URL}/books/export/excel`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Excel indirme başarısız');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kitaplar.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showGlobalMessage('Excel dosyası indirildi');
+    } catch (err) {
+        showGlobalMessage('Excel indirme hatası: ' + err.message, 'error');
+    }
+}
+
+async function importBooksFromExcel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                const result = await apiCall('/books/import/excel', 'POST', { data: jsonData });
+                showGlobalMessage(result.message);
+                loadBooksTable();
+
+                if (result.errors && result.errors.length > 0) {
+                    console.log('Import errors:', result.errors);
+                }
+            } catch (err) {
+                showGlobalMessage('Excel içe aktarma hatası: ' + err.message, 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    } catch (err) {
+        showGlobalMessage('Dosya okuma hatası: ' + err.message, 'error');
+    }
+
+    event.target.value = '';
+}
+
+async function downloadExcelTemplate() {
+    try {
+        const response = await fetch(`${API_URL}/books/template/excel`, {
+            method: 'GET'
+        });
+
+        if (!response.ok) {
+            throw new Error('Şablon indirme başarısız');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kitap_sablonu.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        showGlobalMessage('Şablon dosyası indirildi');
+    } catch (err) {
+        showGlobalMessage('Şablon indirme hatası: ' + err.message, 'error');
+    }
+}
+
 // ==================== USER MANAGEMENT ====================
 async function loadMembersTable() {
     try {

@@ -6,6 +6,7 @@
     <title>Argeta - Kütüphane Yönetim Sistemi</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script id="tailwind-config">
@@ -208,6 +209,19 @@
                     <button onclick="openAddBookModal()" class="bg-zinc-100 hover:bg-white text-zinc-900 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
                         <span class="material-symbols-outlined text-xl" aria-hidden="true">add</span>
                         Kitap Ekle
+                    </button>
+                    <button onclick="exportBooksToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl" aria-hidden="true">download</span>
+                        Excel İndir
+                    </button>
+                    <button onclick="document.getElementById('excelFileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl" aria-hidden="true">upload</span>
+                        Excel Yükle
+                    </button>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xls" class="hidden" onchange="importBooksFromExcel(event)">
+                    <button onclick="downloadExcelTemplate()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all">
+                        <span class="material-symbols-outlined text-xl" aria-hidden="true">description</span>
+                        Şablon İndir
                     </button>
                     <span id="adminUsername" class="text-sm font-medium text-zinc-400"></span>
                 </div>

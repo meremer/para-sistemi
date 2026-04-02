@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
+const XLSX = require('xlsx');
 const { initializeDatabase } = require('./database');
 
 const app = express();
@@ -227,7 +228,7 @@ app.put('/api/books/:id', authenticateToken, requireAdmin, async (req, res) => {
 app.delete('/api/books/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Check if there are active lendings
     const activeLending = await db.get('SELECT id FROM lendings WHERE bookId = ? AND status = ?', [id, 'active']);
     if (activeLending) {
@@ -236,12 +237,115 @@ app.delete('/api/books/:id', authenticateToken, requireAdmin, async (req, res) =
 
     await db.run('DELETE FROM lendings WHERE bookId = ?', [id]);
     const result = await db.run('DELETE FROM books WHERE id = ?', [id]);
-    
+
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Kitap bulunamadı' });
     }
 
     res.json({ message: 'Kitap başarıyla silindi' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/books/export/excel', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const books = await db.all('SELECT title, author, isbn, totalCopies, availableCopies, category, year FROM books ORDER BY createdAt DESC');
+
+    const worksheet = XLSX.utils.json_to_sheet(books);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Books');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename=books.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/books/template/excel', async (req, res) => {
+  try {
+    const template = [
+      {
+        title: 'Örnek Kitap Başlığı',
+        author: 'Yazar Adı',
+        isbn: '978-0-123-45678-9',
+        totalCopies: 5,
+        availableCopies: 5,
+        category: 'Kurgu',
+        year: 2024
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(template);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Books');
+
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename=books_template.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/books/import/excel', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (!data || !Array.isArray(data)) {
+      return res.status(400).json({ error: 'Geçersiz veri formatı' });
+    }
+
+    let imported = 0;
+    let skipped = 0;
+    const errors = [];
+
+    for (const row of data) {
+      try {
+        if (!row.title || !row.author || !row.isbn) {
+          skipped++;
+          errors.push(`Satır atlandı: Başlık, yazar veya ISBN eksik`);
+          continue;
+        }
+
+        const existing = await db.get('SELECT id FROM books WHERE isbn = ?', [row.isbn]);
+        if (existing) {
+          skipped++;
+          errors.push(`ISBN ${row.isbn} zaten mevcut`);
+          continue;
+        }
+
+        await db.run(
+          'INSERT INTO books (title, author, isbn, totalCopies, availableCopies, category, year) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [
+            row.title,
+            row.author,
+            row.isbn,
+            parseInt(row.totalCopies) || 1,
+            parseInt(row.availableCopies) || parseInt(row.totalCopies) || 1,
+            row.category || 'Diğer',
+            parseInt(row.year) || new Date().getFullYear()
+          ]
+        );
+        imported++;
+      } catch (err) {
+        skipped++;
+        errors.push(`Hata: ${err.message}`);
+      }
+    }
+
+    res.json({
+      message: `${imported} kitap içe aktarıldı, ${skipped} atlandı`,
+      imported,
+      skipped,
+      errors: errors.slice(0, 10)
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
