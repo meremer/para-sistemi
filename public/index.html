@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Argeta - Kütüphane Yönetim Sistemi</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -261,18 +260,18 @@
                         </div>
                     </div>
 
-                    <!-- Statistics Charts -->
+                    <!-- Statistics -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-                            <h3 class="text-lg font-bold mb-4">📚 En Çok Okunan Kitaplar</h3>
-                            <div class="relative h-72">
-                                <canvas id="booksReadChart"></canvas>
+                            <h3 class="text-lg font-bold mb-6">En Çok Okunan Kitaplar</h3>
+                            <div id="booksReadList" class="space-y-4">
+                                <!-- Will be populated by JS -->
                             </div>
                         </div>
                         <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-                            <h3 class="text-lg font-bold mb-4">👥 En Çok Okuyan Kullanıcılar</h3>
-                            <div class="relative h-72">
-                                <canvas id="userReadChart"></canvas>
+                            <h3 class="text-lg font-bold mb-6">En Çok Okuyan Kullanıcılar</h3>
+                            <div id="userReadList" class="space-y-4">
+                                <!-- Will be populated by JS -->
                             </div>
                         </div>
                     </div>
@@ -1007,9 +1006,9 @@
                     </div>
                 </div>
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                    <h4 class="font-bold text-zinc-100 mb-4">📊 Okuma İstatistikleri</h4>
-                    <div class="relative h-64">
-                        <canvas id="userStatsChart"></canvas>
+                    <h4 class="font-bold text-zinc-100 mb-4">Okuma İstatistikleri</h4>
+                    <div id="userStatsGrid" class="grid grid-cols-2 gap-4">
+                        <!-- Will be populated by JS -->
                     </div>
                 </div>
                 <div class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">

@@ -1,8 +1,5 @@
 // API Base URL
 
-if (typeof Chart !== 'undefined') Chart.defaults.color = '#a3a3a3';
-if (typeof Chart !== 'undefined') Chart.defaults.borderColor = '#262626';
-
 const API_URL = '/api';
 let authToken = localStorage.getItem('authToken');
 let currentUser = JSON.parse(localStorage.getItem('currentUser'));
@@ -204,75 +201,65 @@ async function loadAdminDashboard() {
         document.getElementById('pendingRequestsCount').textContent = stats.summary.pendingRequests || 0;
 
         updatePendingBadge();
-        createBooksReadChart(stats.booksReadCount);
-        createUserReadChart(stats.booksReadPerUser);
+        displayBooksReadList(stats.booksReadCount);
+        displayUserReadList(stats.booksReadPerUser);
     } catch (err) {}
 }
 
-function createBooksReadChart(booksReadData) {
-    const ctx = document.getElementById('booksReadChart');
-    if (!ctx) return;
-    if (window.booksReadChartInstance) window.booksReadChartInstance.destroy();
+function displayBooksReadList(booksReadData) {
+    const container = document.getElementById('booksReadList');
+    if (!container) return;
 
     const sortedBooks = Object.values(booksReadData).sort((a, b) => b.readCount - a.readCount).slice(0, 5);
-    const labels = sortedBooks.map(b => b.title);
-    const readData = sortedBooks.map(b => b.readCount);
-    const totalData = sortedBooks.map(b => b.totalLendings);
 
-    window.booksReadChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Okunanlar', data: readData, backgroundColor: '#16a34a' },
-                { label: 'Toplam Ödünç', data: totalData, backgroundColor: '#1e40af' }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } },
-                y: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } }
-            },
-            plugins: {
-                legend: { labels: { color: '#f5f5f5' } }
-            }
-        }
-    });
+    if (sortedBooks.length === 0) {
+        container.innerHTML = '<p class="text-zinc-500 text-sm">Henüz veri yok</p>';
+        return;
+    }
+
+    container.innerHTML = sortedBooks.map((book, index) => `
+        <div class="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg border border-zinc-700/50 hover:border-zinc-600 transition-colors">
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+                <span class="text-2xl font-black text-zinc-600 w-8 flex-shrink-0">${index + 1}</span>
+                <div class="min-w-0 flex-1">
+                    <h4 class="font-semibold text-zinc-100 truncate">${escapeHTML(book.title)}</h4>
+                    <p class="text-xs text-zinc-500">Toplam ödünç: ${book.totalLendings}</p>
+                </div>
+            </div>
+            <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-2xl font-bold text-success">${book.readCount}</div>
+                <div class="text-xs text-zinc-500">okunma</div>
+            </div>
+        </div>
+    `).join('');
 }
 
-function createUserReadChart(userReadData) {
-    const ctx = document.getElementById('userReadChart');
-    if (!ctx) return;
-    if (window.userReadChartInstance) window.userReadChartInstance.destroy();
+function displayUserReadList(userReadData) {
+    const container = document.getElementById('userReadList');
+    if (!container) return;
 
     const sortedUsers = Object.values(userReadData).sort((a, b) => b.booksRead - a.booksRead).slice(0, 5);
-    const labels = sortedUsers.map(u => u.fullname);
-    const readData = sortedUsers.map(u => u.booksRead);
-    const borrowData = sortedUsers.map(u => u.totalBorrowed);
 
-    window.userReadChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Okunan Kitaplar', data: readData, backgroundColor: '#dc2626' },
-                { label: 'Ödünç Alınan', data: borrowData, backgroundColor: '#7c3aed' }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } },
-                y: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } }
-            },
-            plugins: {
-                legend: { labels: { color: '#f5f5f5' } }
-            }
-        }
-    });
+    if (sortedUsers.length === 0) {
+        container.innerHTML = '<p class="text-zinc-500 text-sm">Henüz veri yok</p>';
+        return;
+    }
+
+    container.innerHTML = sortedUsers.map((user, index) => `
+        <div class="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg border border-zinc-700/50 hover:border-zinc-600 transition-colors">
+            <div class="flex items-center gap-4 flex-1 min-w-0">
+                <span class="text-2xl font-black text-zinc-600 w-8 flex-shrink-0">${index + 1}</span>
+                <div class="min-w-0 flex-1">
+                    <h4 class="font-semibold text-zinc-100 truncate">${escapeHTML(user.fullname)}</h4>
+                    <p class="text-xs text-zinc-500">Toplam ödünç: ${user.totalBorrowed}</p>
+                </div>
+            </div>
+            <div class="text-right flex-shrink-0 ml-4">
+                <div class="text-2xl font-bold text-secondary-red">${user.booksRead}</div>
+                <div class="text-xs text-zinc-500">kitap</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ==================== BOOKS MANAGEMENT ====================
@@ -721,7 +708,7 @@ async function loadUserStatistics(userId) {
         document.getElementById('userTotalBorrowed').textContent = userStats.totalBorrowed;
         document.getElementById('userBooksRead').textContent = userStats.booksRead;
 
-        createUserDetailChart(userStats, userLendings);
+        displayUserDetailStats(userStats, userLendings);
 
         const tbody = document.getElementById('userBorrowedBooksTable');
         tbody.innerHTML = userLendings.map(lending => {
@@ -737,37 +724,33 @@ async function loadUserStatistics(userId) {
     } catch (err) {}
 }
 
-function createUserDetailChart(userStats, userLendings) {
-    const ctx = document.getElementById('userStatsChart');
-    if (!ctx) return;
-    if (window.userDetailChartInstance) window.userDetailChartInstance.destroy();
+function displayUserDetailStats(userStats, userLendings) {
+    const container = document.getElementById('userStatsGrid');
+    if (!container) return;
 
     const readBooks = userLendings.filter(l => l.read).length;
     const unreadBooks = userLendings.length - readBooks;
     const activeBooks = userLendings.filter(l => l.status === 'active').length;
     const returnedBooks = userLendings.filter(l => l.status === 'returned').length;
 
-    window.userDetailChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Okunan', 'Okunmayan', 'Aktif', 'Geri Alındı'],
-            datasets: [{
-                data: [readBooks, unreadBooks, activeBooks, returnedBooks],
-                backgroundColor: ['#16a34a', '#f59e0b', '#3b82f6', '#10b981']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } },
-                y: { grid: { color: '#262626' }, ticks: { color: '#a3a3a3' } }
-            },
-            plugins: {
-                legend: { labels: { color: '#f5f5f5' } }
-            }
-        }
-    });
+    container.innerHTML = `
+        <div class="bg-zinc-800 border border-zinc-700 p-4 rounded-lg text-center">
+            <div class="text-3xl font-bold text-success mb-1">${readBooks}</div>
+            <div class="text-xs text-zinc-400">Okunan</div>
+        </div>
+        <div class="bg-zinc-800 border border-zinc-700 p-4 rounded-lg text-center">
+            <div class="text-3xl font-bold text-amber-500 mb-1">${unreadBooks}</div>
+            <div class="text-xs text-zinc-400">Okunmayan</div>
+        </div>
+        <div class="bg-zinc-800 border border-zinc-700 p-4 rounded-lg text-center">
+            <div class="text-3xl font-bold text-blue-500 mb-1">${activeBooks}</div>
+            <div class="text-xs text-zinc-400">Aktif</div>
+        </div>
+        <div class="bg-zinc-800 border border-zinc-700 p-4 rounded-lg text-center">
+            <div class="text-3xl font-bold text-emerald-500 mb-1">${returnedBooks}</div>
+            <div class="text-xs text-zinc-400">Geri Alındı</div>
+        </div>
+    `;
 }
 
 // ==================== USER PANEL ====================
