@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Argeta - Kütüphane Yönetim Sistemi</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script id="tailwind-config">
@@ -91,6 +91,37 @@
         .animate-slide-up {
             animation: slideUp 1s ease-out forwards;
         }
+
+        /* Transition animations */
+        @keyframes waveCloseTop {
+            from { transform: translateY(0); }
+            to { transform: translateY(calc(50vh - 160px)); }
+        }
+        @keyframes waveCloseBottom {
+            from { transform: translateY(0); }
+            to { transform: translateY(calc(-50vh + 160px)); }
+        }
+        @keyframes waveOpenTop {
+            from { transform: translateY(calc(50vh - 160px)); }
+            to { transform: translateY(-100%); }
+        }
+        @keyframes waveOpenBottom {
+            from { transform: translateY(calc(-50vh + 160px)); }
+            to { transform: translateY(100%); }
+        }
+
+        .wave-close-top {
+            animation: waveCloseTop 0.8s ease-in-out forwards;
+        }
+        .wave-close-bottom {
+            animation: waveCloseBottom 0.8s ease-in-out forwards;
+        }
+        .wave-open-top {
+            animation: waveOpenTop 0.8s ease-in-out forwards;
+        }
+        .wave-open-bottom {
+            animation: waveOpenBottom 0.8s ease-in-out forwards;
+        }
     </style>
 </head>
 <body class="bg-background-light font-display text-zinc-100">
@@ -98,6 +129,16 @@
     <!-- Global Message -->
     <div id="globalMessage" role="status" aria-live="polite" class="hidden fixed bottom-4 right-4 p-4 rounded-lg shadow-2xl z-[100] transition-all transform translate-y-20">
         <p id="globalMessageContent"></p>
+    </div>
+
+    <!-- Transition Overlay -->
+    <div id="transitionOverlay" class="hidden fixed inset-0 z-[60] pointer-events-none">
+        <svg id="transitionWaveTop" class="absolute top-0 w-full h-auto" viewBox="0 0 1440 320" preserveAspectRatio="none" style="transform: translateY(-100%);">
+            <path fill="#171717" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+        <svg id="transitionWaveBottom" class="absolute bottom-0 w-full h-auto" viewBox="0 0 1440 320" preserveAspectRatio="none" style="transform: translateY(100%) rotate(180deg);">
+            <path fill="#171717" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
     </div>
 
     <!-- LOGIN PAGE -->

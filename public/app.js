@@ -91,14 +91,15 @@ if (document.getElementById('loginForm')) {
 
         try {
             const data = await apiCall('/auth/login', 'POST', { username, password });
-            
+
             authToken = data.token;
             currentUser = data.user;
-            
+
             localStorage.setItem('authToken', authToken);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-            initApp();
+            // Trigger wave transition
+            playLoginTransition();
         } catch (err) {
             // Error handled in apiCall
         } finally {
@@ -106,6 +107,38 @@ if (document.getElementById('loginForm')) {
             btn.classList.remove('loading');
         }
     });
+}
+
+function playLoginTransition() {
+    const overlay = document.getElementById('transitionOverlay');
+    const topWave = document.getElementById('transitionWaveTop');
+    const bottomWave = document.getElementById('transitionWaveBottom');
+
+    // Show overlay
+    overlay.classList.remove('hidden');
+
+    // Close waves
+    topWave.classList.add('wave-close-top');
+    bottomWave.classList.add('wave-close-bottom');
+
+    // After waves close, switch pages and open waves
+    setTimeout(() => {
+        document.getElementById('loginPage').classList.add('hidden');
+        initApp();
+
+        // Open waves
+        topWave.classList.remove('wave-close-top');
+        topWave.classList.add('wave-open-top');
+        bottomWave.classList.remove('wave-close-bottom');
+        bottomWave.classList.add('wave-open-bottom');
+
+        // Hide overlay after animation completes
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            topWave.classList.remove('wave-open-top');
+            bottomWave.classList.remove('wave-open-bottom');
+        }, 800);
+    }, 800);
 }
 
 function logout() {
