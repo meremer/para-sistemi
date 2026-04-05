@@ -113,6 +113,8 @@ function playLoginTransition() {
     const overlay = document.getElementById('transitionOverlay');
     const topWave = document.getElementById('transitionWaveTop');
     const bottomWave = document.getElementById('transitionWaveBottom');
+    const solidTop = document.getElementById('solidBlockTop');
+    const solidBottom = document.getElementById('solidBlockBottom');
 
     // Show overlay
     overlay.classList.remove('hidden');
@@ -121,24 +123,34 @@ function playLoginTransition() {
     topWave.classList.add('wave-close-top');
     bottomWave.classList.add('wave-close-bottom');
 
-    // After waves close, switch pages and open waves
+    // After waves close, switch pages and open with solid blocks
     setTimeout(() => {
         document.getElementById('loginPage').classList.add('hidden');
         initApp();
 
-        // Open waves
-        topWave.classList.remove('wave-close-top');
-        topWave.classList.add('wave-open-top');
-        bottomWave.classList.remove('wave-close-bottom');
-        bottomWave.classList.add('wave-open-bottom');
+        // Hide wave SVGs and show solid blocks
+        topWave.style.display = 'none';
+        bottomWave.style.display = 'none';
+        solidTop.style.display = 'block';
+        solidBottom.style.display = 'block';
+
+        // Open solid blocks
+        solidTop.classList.add('wave-open-top');
+        solidBottom.classList.add('wave-open-bottom');
 
         // Hide overlay after animation completes
         setTimeout(() => {
             overlay.classList.add('hidden');
-            topWave.classList.remove('wave-open-top');
-            bottomWave.classList.remove('wave-open-bottom');
-        }, 800);
-    }, 800);
+            solidTop.classList.remove('wave-open-top');
+            solidBottom.classList.remove('wave-open-bottom');
+            topWave.classList.remove('wave-close-top');
+            bottomWave.classList.remove('wave-close-bottom');
+            topWave.style.display = '';
+            bottomWave.style.display = '';
+            solidTop.style.display = 'none';
+            solidBottom.style.display = 'none';
+        }, 700);
+    }, 700);
 }
 
 function logout() {

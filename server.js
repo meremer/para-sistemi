@@ -63,7 +63,7 @@ const loginLimiter = rateLimit({
 });
 
 app.use('/api/', apiLimiter);
-app.use('/api/auth/login', loginLimiter);
+// app.use('/api/auth/login', loginLimiter); // Disabled for development
 
 let db;
 
