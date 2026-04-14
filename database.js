@@ -96,42 +96,50 @@ async function initializeDatabase() {
         }
     }
 
-    // Check if admin exists, if not create default users
-    const admin = await db.get('SELECT * FROM users WHERE username = ?', ['admin']);
+    // Check if admin exists, if not create from environment variables
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const admin = await db.get('SELECT * FROM users WHERE username = ?', [adminUsername]);
+
     if (!admin) {
-        await db.run(
-            'INSERT INTO users (username, password, fullname, email, role) VALUES (?, ?, ?, ?, ?)',
-            ['admin', bcrypt.hashSync('1234', 10), 'Admin Kullanıcı', 'admin@library.com', 'admin']
-        );
-        await db.run(
-            'INSERT INTO users (username, password, fullname, email, role) VALUES (?, ?, ?, ?, ?)',
-            ['user1', bcrypt.hashSync('1234', 10), 'Demo Kullanıcı', 'user1@library.com', 'user']
-        );
-    }
+        const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // Check if books exist, if not create default books
-    const bookCount = await db.get('SELECT COUNT(*) as count FROM books');
-    if (bookCount.count === 0) {
-        const defaultBooks = [
-            ['Gece Kütüphanesi', 'Matt Haig', '978-0-330-47-495-8', 5, 3, 'Kurgu', 2020],
-            ['1984', 'George Orwell', '978-0-451-52493-2', 4, 2, 'Kurgu', 2008],
-            ['Sapiens', 'Yuval Noah Harari', '978-0-062-31625-6', 3, 3, 'Kurgusal Olmayan', 2014]
-        ];
-        for (const book of defaultBooks) {
-            await db.run(
-                'INSERT INTO books (title, author, isbn, totalCopies, availableCopies, category, year) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                book
-            );
+        if (!adminPassword) {
+            console.error('ERROR: ADMIN_PASSWORD environment variable is not set!');
+            console.error('Please set ADMIN_PASSWORD before starting the server.');
+            process.exit(1);
         }
+
+        await db.run(
+            'INSERT INTO users (username, password, fullname, email, role) VALUES (?, ?, ?, ?, ?)',
+            [
+                adminUsername,
+                bcrypt.hashSync(adminPassword, 10),
+                process.env.ADMIN_FULLNAME || 'Admin User',
+                process.env.ADMIN_EMAIL || 'admin@library.com',
+                'admin'
+            ]
+        );
+
+        console.log(`✓ Admin user created: ${adminUsername}`);
     }
 
-    // Check if lendings exist, if not create default lending
-    const lendingCount = await db.get('SELECT COUNT(*) as count FROM lendings');
-    if (lendingCount.count === 0) {
-        await db.run(
-            'INSERT INTO lendings (userId, bookId, lendDate, returnDate, status, read) VALUES (?, ?, ?, ?, ?, ?)',
-            [2, 1, '2026-01-15', '2026-02-15', 'active', 0]
-        );
+    // Optional: Create demo data if ENABLE_DEMO_DATA is set
+    if (process.env.ENABLE_DEMO_DATA === 'true') {
+        const bookCount = await db.get('SELECT COUNT(*) as count FROM books');
+        if (bookCount.count === 0) {
+            const defaultBooks = [
+                ['Gece Kütüphanesi', 'Matt Haig', '978-0-330-47-495-8', 5, 3, 'Kurgu', 2020],
+                ['1984', 'George Orwell', '978-0-451-52493-2', 4, 2, 'Kurgu', 2008],
+                ['Sapiens', 'Yuval Noah Harari', '978-0-062-31625-6', 3, 3, 'Kurgusal Olmayan', 2014]
+            ];
+            for (const book of defaultBooks) {
+                await db.run(
+                    'INSERT INTO books (title, author, isbn, totalCopies, availableCopies, category, year) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    book
+                );
+            }
+            console.log('✓ Demo books created');
+        }
     }
 
     return db;

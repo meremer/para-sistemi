@@ -874,10 +874,12 @@ initializeDatabase().then(database => {
   app.listen(PORT, () => {
     console.log(`🚀 Kütüphane Sunucusu ${PORT} portunda çalışıyor`);
     console.log(`📍 http://localhost:${PORT}`);
-    console.log('\n📚 Demo Hesapları:');
-    console.log('Admin: admin / 1234');
-    console.log('User: user1 / 1234');
+    console.log(`\n👤 Admin: ${process.env.ADMIN_USERNAME || 'admin'}`);
+    if (process.env.ENABLE_DEMO_DATA === 'true') {
+      console.log('📚 Demo data enabled');
+    }
   });
 }).catch(err => {
   console.error('Veritabanı başlatılamadı:', err);
+  process.exit(1);
 });

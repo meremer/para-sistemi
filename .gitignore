@@ -10,7 +10,7 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Data files (Dev only)
+# Data files (Dev only - comment out for Render deployment with persistent disk)
 data/
 
 # IDE

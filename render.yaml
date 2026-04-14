@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: library-management
+    runtime: node
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_FULLNAME
+        value: Admin User
+      - key: ADMIN_EMAIL
+        value: admin@library.com
+      - key: ENABLE_DEMO_DATA
+        value: false
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
