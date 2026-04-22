@@ -36,7 +36,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
     try {
         const response = await fetch(`${API_URL}${endpoint}`, options);
 
-        if (response.status === 401 && endpoint !== '/auth/login') {
+        if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/profile/password') {
             logout();
             throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.');
         }
